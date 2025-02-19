@@ -21,15 +21,15 @@ output:
 
 -   <https://data.austintexas.gov/Environment/Water-Quality-Sampling-Data/5tye-7ray/about_data>
 
--   Dataset name
+-   Water Quality Sampling Data
 
--   Description of dataset: What does one row represent? Main variables of interest?
+-   Each row is a water quality sample by parameter, date, and location in Austin, TX. We are primarily interested in variables watershed, site_type, and result to understand the distribution of water quality across Austin.
 
 ------------------------------------------------------------------------
 
 ## Why
 
--   Why is this topic important to investigate?
+-   Citizens have a right to know more about their water quality. Especially given that we, as students, use the same water everyday. Therefore, learning more about the water quality could give actionable insights into how to make better water decisions.
 
 -   Motivations? Find previous study/article to give context and link it.
 
