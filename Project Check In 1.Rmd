@@ -1,0 +1,44 @@
+---
+title: "Project Check In 1"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+---
+
+------------------------------------------------------------------------
+
+## Who
+
+-   Nabil Yusufali, nay277
+
+-   Amanda Lee, awl646
+
+------------------------------------------------------------------------
+
+## Dataset
+
+-   <https://data.austintexas.gov/Environment/Water-Quality-Sampling-Data/5tye-7ray/about_data>
+
+-   Dataset name
+
+-   Description of dataset: What does one row represent? Main variables of interest?
+
+------------------------------------------------------------------------
+
+## Why
+
+-   Why is this topic important to investigate?
+
+-   Motivations? Find previous study/article to give context and link it.
+
+------------------------------------------------------------------------
+
+## Variables and RQ
+
+-   Need at least 6 variables to explore where at least 2 are numeric and at least 1 is categorical
+
+-   Write research question involving these variables.
+
+------------------------------------------------------------------------
