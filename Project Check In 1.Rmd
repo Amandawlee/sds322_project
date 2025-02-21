@@ -31,14 +31,27 @@ output:
 
 -   Citizens have a right to know more about their water quality. Especially given that we, as students, use the same water everyday. Therefore, learning more about the water quality could give actionable insights into how to make better water decisions.
 
--   Motivations? Find previous study/article to give context and link it.
+-   Here are some links that refer to how chemicals can have an effect on water contamination.
+
+    -   [Texas Regulators Report More Than 250 New Cases of Groundwater Contamination](https://insideclimatenews.org/news/16122024/texas-regulators-report-new-cases-of-groundwater-contamination/)
+    -   [Austin has little to no 'forever chemicals' in its drinking water. What did the city do right?](https://www.kut.org/energy-environment/2024-12-06/austin-tx-forever-chemicals-pfas-drinking-water-report)
 
 ------------------------------------------------------------------------
 
 ## Variables and RQ
 
--   Need at least 6 variables to explore where at least 2 are numeric and at least 1 is categorical
-
--   Write research question involving these variables.
+-   Numerical Variables:
+    -   Sample Date: SAMPLE_DATE
+    -   (Sampling) Result: RESULT
+-   Categorical Variables:
+    -   Parameter: PARAMETER
+    -   Parameter Type: PARAM_TYPE
+    -   Medium: MEDIUM
+    -   Method: METHOD
+-   Research Question(s):
+    -   How does the sample date/time of the sample affect the results?
+    -   How does the sampling method affect the results?
+    -   How does the sampling medium affect the results?
+    -   What sampling methods are used for each parameter and parameter type?
 
 ------------------------------------------------------------------------
