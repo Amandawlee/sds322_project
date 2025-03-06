@@ -1,0 +1,91 @@
+---
+title: "Project Check In 1"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+---
+
+------------------------------------------------------------------------
+
+```{r}
+# Import dataset
+water <- read.csv('https://raw.githubusercontent.com/Amandawlee/sds322_project/refs/heads/main/WaterQuality2024.csv?token=GHSAT0AAAAAAC7FPUQ2ZSXVIS6CO77M23ZOZ6I4XYQ')
+```
+
+------------------------------------------------------------------------
+
+## Dataset
+
+-   <https://data.austintexas.gov/Environment/Water-Quality-Sampling-Data/5tye-7ray/about_data>
+
+-   Water Quality Sampling Data
+
+-   Each row is a water quality sample by parameter, date, and location in Austin, TX. We are primarily interested in variables watershed, site_type, and result to understand the distribution of water quality across Austin.
+
+------------------------------------------------------------------------
+
+## Research Question
+
+-   Citizens have a right to know more about their water quality. Especially given that we, as students, use the same water everyday. Therefore, learning more about the water quality could give actionable insights into how to make better water decisions.
+
+-   Here are some links that refer to how chemicals can have an effect on water contamination.
+
+    -   [Texas Regulators Report More Than 250 New Cases of Groundwater Contamination](https://insideclimatenews.org/news/16122024/texas-regulators-report-new-cases-of-groundwater-contamination/)
+    -   [Austin has little to no 'forever chemicals' in its drinking water. What did the city do right?](https://www.kut.org/energy-environment/2024-12-06/austin-tx-forever-chemicals-pfas-drinking-water-report)
+
+------------------------------------------------------------------------
+
+## Wrangling
+
+```{r}
+water_tidy <- water |>
+  #Select all columns relevant to E Coli concentrations and at which site
+  select("PARAM_TYPE", "PARAMETER", "RESULT", "LAT_DD_WGS84", "LON_DD_WGS84") |>
+  filter(PARAMETER == "E COLI BACTERIA") |>
+  mutate(ecoli_safe = ifelse(RESULT >= 200, F, T))
+```
+
+-   Numerical Variables:
+    -   Sample Date: SAMPLE_DATE
+    -   (Sampling) Result: RESULT
+-   Categorical Variables:
+    -   Parameter: PARAMETER
+    -   Parameter Type: PARAM_TYPE
+    -   Medium: MEDIUM
+    -   Method: METHOD
+-   Research Question(s):
+    -   How does the sample date/time of the sample affect the results?
+    -   How does the sampling method affect the results?
+    -   How does the sampling medium affect the results?
+    -   What sampling methods are used for each parameter and parameter type?
+
+------------------------------------------------------------------------
+
+# Explore 1 numeric variable
+
+```{r}
+water_tidy |>
+  ggplot() +
+  #Plot lat/long map and color based on safety
+  geom_point(aes(x = LON_DD_WGS84, y = LAT_DD_WGS84, color = ecoli_safe)) +
+  scale_color_manual(values = c("forestgreen", "red"), name = ">= 200 colonies/100 mL") +
+  labs(
+    x = 'Longitude (degrees)',
+    y = 'Latitude (degrees)',
+    title = 'Distribution of safe E. Coli concentrations across Austin',
+    caption = "Information about safe concentrations of E. Coli in \n recreational water were found at this link: \n https://www.knowyourh2o.com/outdoor-4/fecal-coliform-bacteria-in-water"
+  ) +
+  theme_bw()
+
+summary(water_tidy$ecoli_safe)
+```
+
+------------------------------------------------------------------------
+
+# Explore 1 categorical variable
+
+------------------------------------------------------------------------
+
+# Questions
