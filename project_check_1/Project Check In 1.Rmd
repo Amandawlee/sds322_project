@@ -1,0 +1,57 @@
+---
+title: "Project Check In 1"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+---
+
+------------------------------------------------------------------------
+
+## Who
+
+-   Nabil Yusufali, nay277
+
+-   Amanda Lee, awl646
+
+------------------------------------------------------------------------
+
+## Dataset
+
+-   <https://data.austintexas.gov/Environment/Water-Quality-Sampling-Data/5tye-7ray/about_data>
+
+-   Water Quality Sampling Data
+
+-   Each row is a water quality sample by parameter, date, and location in Austin, TX. We are primarily interested in variables watershed, site_type, and result to understand the distribution of water quality across Austin.
+
+------------------------------------------------------------------------
+
+## Why
+
+-   Citizens have a right to know more about their water quality. Especially given that we, as students, use the same water everyday. Therefore, learning more about the water quality could give actionable insights into how to make better water decisions.
+
+-   Here are some links that refer to how chemicals can have an effect on water contamination.
+
+    -   [Texas Regulators Report More Than 250 New Cases of Groundwater Contamination](https://insideclimatenews.org/news/16122024/texas-regulators-report-new-cases-of-groundwater-contamination/)
+    -   [Austin has little to no 'forever chemicals' in its drinking water. What did the city do right?](https://www.kut.org/energy-environment/2024-12-06/austin-tx-forever-chemicals-pfas-drinking-water-report)
+
+------------------------------------------------------------------------
+
+## Variables and RQ
+
+-   Numerical Variables:
+    -   Sample Date: SAMPLE_DATE
+    -   (Sampling) Result: RESULT
+-   Categorical Variables:
+    -   Parameter: PARAMETER
+    -   Parameter Type: PARAM_TYPE
+    -   Medium: MEDIUM
+    -   Method: METHOD
+-   Research Question(s):
+    -   How does the sample date/time of the sample affect the results?
+    -   How does the sampling method affect the results?
+    -   How does the sampling medium affect the results?
+    -   What sampling methods are used for each parameter and parameter type?
+
+------------------------------------------------------------------------
