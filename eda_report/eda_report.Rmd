@@ -1,0 +1,115 @@
+---
+title: "EDA Report"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE,  
+                      warning = TRUE, message = FALSE, 
+                      fig.align = "center",
+                      R.options = list(max.print=100))
+
+library(tidyverse)
+```
+
+------------------------------------------------------------------------
+
+# Title and Introduction
+
+## Names and EIDs:
+
+-   Amanda Lee, awl646
+
+-   Nabil Yusufali, nay277
+
+## Instructions:
+
+-   Describe the data set(s) you have chosen and why you are interested in this data.
+
+-   Include a picture related to the topic of your project. Cite the source of the picture (it can be one of your own! For example, a pet you adopted at the Animal Center).
+
+-   Cite a previous study or some news article that gives you some background about the topic/context around this data set. Describe how this citation ties to your project: Why is this topic important for you to investigate? What are your motivations?
+
+-   Include the link to your data set and quickly describe what information it contains: What does a unique row represent? What are the main variables of interests?
+
+-   Write a research question to guide your exploratory data analysis. If a team project, each member suggests 1 research question.
+
+-   Try to anticipate what you will learn by conducting this analysis: What trends or relationships do you expect?
+
+------------------------------------------------------------------------
+
+# Methods
+
+- Wrangle data and document any steps taken to get the data set in shape for data analysis.
+
+- Organize your data: for example, use single-word names for all variables, filter your data on some conditions, and create all new variables (e.g., transform dates to calculate a duration, regroup categories, ...) in this section.
+
+- Describe your data: How many rows/columns did you start with? How many rows/columns did you end up with? Any reason why you may not have the same amount of rows before/after wrangling?
+
+- Justify if your resulting dataset(s) is tidy.
+
+- If applicable: Handle missing values. Report the number of missing values for each variable. Are you keeping/dropping missing values in the data set? What impact would dropping missing values have on your results?
+
+- If applicable: Include any steps to reshape your data set(s) if the data set is not tidy so that every observation has its own row and every variable its own column.
+
+- If applicable: Includes any steps to join several data sets and combine them in a single data set. Make sure to report how many observations/rows were dropped/added when joining the data sets and discuss any potential issues.
+
+------------------------------------------------------------------------
+
+# Results
+
+- Explore your data with visualizations and summary statistics.
+
+-  Make a visualization representing the distribution of each variable included in the research question and report the appropriate summary statistics. If a team project, each member makes a visualization for each variable included in their research question. If some variables are in common across the team members, then try a different approach (there are so many ways to make visualizations in ggplot).
+
+- Make at least 2 visualizations representing relationships between 2 variables reporting the
+appropriate summary statistics. You could also do some visualizations with 3 variables if you’d like. If a team project, each member creates 2 multivariate visualizations, with the appropriate statistics.
+
+- Include appropriate titles and labels for each visualization and make sure summary statistics are
+reported with appropriate units. Note: It might be a good idea to number your visualizations to
+reference them in the Discussion.
+
+- Write sentences interpreting each visualization with any trend/relationships and referring to
+appropriate summary statistics.
+
+------------------------------------------------------------------------
+
+# Discussion
+
+-   Put it all together, what did you learn from your data?
+
+-   Answer your research question(s) in context, citing visualizations and summary statistics.
+
+-   Did the data match what you expected? Anything surprising? Anything you are curious about?
+
+-   If you were going to share your findings with the City of Austin (and you might actually do that!), what would be the main takeaway from your exploratory data analysis?
+
+-   Anything you would like to share about the state of the data set (e.g., inconsistency in coding for categories, typos, missing values...)?
+
+------------------------------------------------------------------------
+
+# Reflection, Acknowledgements, and References
+
+-   Reflect on the process of conducting this project.
+
+-   What aspect of this part of the project was the most challenging?
+
+-   What have you learned from the process itself?
+
+-   Include acknowledgements for any help received: who helped you with the project? Thank TAs, instructors, data owners, external resources... If a team project, use this section to report the contribution of each member: who did contribute to which part of the report).
+
+-   Include references: again, add the link(s) of the dataset(s), the link for the citation of a study/article for the background context, the link to a picture (if available), and any external resources.
+
+------------------------------------------------------------------------
+
+# Formatting
+
+-   Create the report using R Markdown, with headers for each section, and comments of the R code.
+
+-   The final report should be at least 5 pages but no more than 20 pages (the number of pages can vary greatly depending on the cleaning process though). It is extremely important that you select pages to corresponding sections when submitting on Gradescope.
+
+-   If a team project, identify all team members on the submission.
