@@ -28,6 +28,20 @@ library(tidyverse)
 
 ## Instructions:
 
+This analysis will look at water quality data from the City of Austin's Open Data Portal. It is collected to assess water quality conditions in the natural creeks, aquifers, and lakes in Austin and surrounding areas. Citizens have a right to know more about their water quality. Especially given that we, as students, use the same water everyday. Therefore, learning more about the water quality could give actionable insights into how to make better water decisions.
+
+![A picture of Barton Springs, one of Austin's significant groundwater aquifers. Taken from <https://www.austintexas.org/listings/barton-springs-pool/4687/>.](https://assets.simpleviewinc.com/simpleview/image/upload/c_limit,q_75,w_1200/v1/crm/austin/011-421ace03bc29117_421acf68-dde1-a643-f8d4f8148337c3cd.jpg)
+
+In an article from Inside Climate News, author Martha Pskowski writes that "there are 224 public water supply wells that are considered contaminated", according to the Texas Groundwater Protection Committee's annual report. For a growing state with less and less surface water sources, this issue is one that cannot be ignored if Texas hopes to continue to attract new residents. Additionally, water quality testing extends to agriculture as well. As the "largest consumer of groundwater statewide", the agricultural sector's handling of water quality impacts the diet of every Texan.
+
+The data set to be analyzed can be found here: <https://data.austintexas.gov/Environment/Water-Quality-Sampling-Data/5tye-7ray/about_data>.
+
+Each row is a water quality sample by parameter, date, and location in Austin, TX. We are primarily interested in variables watershed, site_type, and result to understand the distribution of water quality across Austin. The following research questions are investigated in this report:
+
+-   Do ground water or surface water sources contain higher bacteria concentrations over time?
+
+-   What time of day are most samples being taken at?
+
 -   Describe the data set(s) you have chosen and why you are interested in this data.
 
 -   Include a picture related to the topic of your project. Cite the source of the picture (it can be one of your own! For example, a pet you adopted at the Animal Center).
@@ -44,37 +58,135 @@ library(tidyverse)
 
 # Methods
 
-- Wrangle data and document any steps taken to get the data set in shape for data analysis.
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE,  
+                      warning = TRUE, message = FALSE, 
+                      fig.align = "center",
+                      R.options = list(max.print=100))
 
-- Organize your data: for example, use single-word names for all variables, filter your data on some conditions, and create all new variables (e.g., transform dates to calculate a duration, regroup categories, ...) in this section.
+library(tidyverse)
+```
 
-- Describe your data: How many rows/columns did you start with? How many rows/columns did you end up with? Any reason why you may not have the same amount of rows before/after wrangling?
+```{r}
+# Data tidying/wrangling
+water_tidy <- water |>
+  # Remove any missing NA values
+  na.omit() |>
+  # Rename columns to lowercase
+  rename_all(~ str_to_lower(.)) |>
+  # Select all relevant columns
+  select(data_ref_no, sample_date,lat_dd_wgs84, lon_dd_wgs84, param_type, parameter, result, method, medium, unit) |>
+  # Filter for Bacteria/Pathogen parameter type
+  filter(param_type == "Bacteria/Pathogens") |>
+  filter(medium == 'Ground Water' | medium == 'Surface Water') |>
+  mutate(date = mdy_hms(sample_date), year = year(date))
 
-- Justify if your resulting dataset(s) is tidy.
+head(water_tidy)
+```
 
-- If applicable: Handle missing values. Report the number of missing values for each variable. Are you keeping/dropping missing values in the data set? What impact would dropping missing values have on your results?
+There are 1,475,965 rows and 24 columns in the original data set. Much of this data is unconcerned with dangerous chemicals or pathogens and thus we have limited the data set to bacteria/pathogen samples since this has one of the most hazardous affects on health. The data set 'water' contains 34893 rows and 24 columns.
 
-- If applicable: Include any steps to reshape your data set(s) if the data set is not tidy so that every observation has its own row and every variable its own column.
+-   Wrangle data and document any steps taken to get the data set in shape for data analysis.
 
-- If applicable: Includes any steps to join several data sets and combine them in a single data set. Make sure to report how many observations/rows were dropped/added when joining the data sets and discuss any potential issues.
+-   Organize your data: for example, use single-word names for all variables, filter your data on some conditions, and create all new variables (e.g., transform dates to calculate a duration, regroup categories, ...) in this section.
+
+-   Describe your data: How many rows/columns did you start with? How many rows/columns did you end up with? Any reason why you may not have the same amount of rows before/after wrangling?
+
+-   Justify if your resulting dataset(s) is tidy.
+
+-   If applicable: Handle missing values. Report the number of missing values for each variable. Are you keeping/dropping missing values in the data set? What impact would dropping missing values have on your results?
+
+-   If applicable: Include any steps to reshape your data set(s) if the data set is not tidy so that every observation has its own row and every variable its own column.
+
+-   If applicable: Includes any steps to join several data sets and combine them in a single data set. Make sure to report how many observations/rows were dropped/added when joining the data sets and discuss any potential issues.
 
 ------------------------------------------------------------------------
 
 # Results
 
-- Explore your data with visualizations and summary statistics.
+To begin to see the variations in bacteria concentration between ground and surface water concentrations, we must first investigate the distributions of each variable involved. We'll first look at the counts of the types of water sources.
 
--  Make a visualization representing the distribution of each variable included in the research question and report the appropriate summary statistics. If a team project, each member makes a visualization for each variable included in their research question. If some variables are in common across the team members, then try a different approach (there are so many ways to make visualizations in ggplot).
+```{r}
+water_tidy |>
+  ggplot() + #Make bar plot of water sources w/o legend
+  geom_bar(aes(y = medium, fill = medium), show.legend = F) +
+  labs(
+    x = 'Number of Sources',
+    y = 'Type of Source',
+    title = 'Distribution of Water Sources',
+    caption = 'Figure 1: Distribution of water sources in Austin, TX'
+  ) + 
+  theme_bw()
 
-- Make at least 2 visualizations representing relationships between 2 variables reporting the
-appropriate summary statistics. You could also do some visualizations with 3 variables if you’d like. If a team project, each member creates 2 multivariate visualizations, with the appropriate statistics.
+water_tidy |> #Calculate summary statistics (counts) for water sources
+  group_by(medium) |>
+  summarize(count = n())
+```
 
-- Include appropriate titles and labels for each visualization and make sure summary statistics are
-reported with appropriate units. Note: It might be a good idea to number your visualizations to
-reference them in the Discussion.
+From Figure 1 and the summary statistics, there are 84 ground water sources and 2622 surface water sources. Next, we'll look at the distribution of bacteria concentration across all sources. This will include the following bacteria: total coliform bacteria, fecal streptococci, fecal coliform bacteria, and E coli bacteria. The EPA recommends that for a domestic water supply that is to be treated, concentrations for the previously mentioned bacteria should be less than 2000 colonies per 100 milliliters. Therefore, the visualization only looks at bacteria concentrations in excess of 2000 colonies/100 mL.
 
-- Write sentences interpreting each visualization with any trend/relationships and referring to
-appropriate summary statistics.
+```{r}
+water_tidy |>
+  filter(result >= 2000) |> #Only look at concentrations above 2000 colonies/100 mL
+  ggplot() +
+  geom_histogram(aes(x = result, fill = parameter), show.legend = F, binwidth = 25000/2, center = 25000/4) +
+  facet_wrap(~parameter) +
+  labs(
+    x = 'Concentration of Bacteria (Colonies/100 mL)',
+    y = 'Frequency',
+    title = 'Distribution of the Relative Concentrations of Bacteria',
+    caption = 'Figure 2: Distribution of the relative concentrations of bacteria in Austin, TX'
+  ) + 
+  theme_bw()
+  
+
+water_tidy |> #All units are colonies/100 mL
+  group_by(parameter) |>
+  summarize(mean_concentration = mean(result),
+            median_concentration = median(result),
+            sd_concentration = sd(result),
+            IQR_concentration = IQR(result))
+```
+
+Figure 2 and the summary statistics show us large variations in the dangerous concentrations of bacteria in water sources in Austin. Mean concentrations of fecal streptococci are above the safe limit at 2055.33 colonies/100 mL with total coliform bacteria concentrations following close behind at 1673.01 colonies/ 100 mL. However, the standard deviation for each bacteria concentration is on the order of hundreds or and thousands, implying that there are still many locations of dangerously high bacteria concentration.
+
+Finally, we can look at the changing concentrations of bacteria over time in both surface and ground water sources.
+
+```{r}
+water_tidy |>
+  ggplot() + #Make two plots for each water source of results as they change per year
+  geom_point(aes(x = year, y = result, color = medium), show.legend = F) +
+  facet_wrap(~medium) +
+  labs(
+    x = 'Year',
+    y = 'Bacteria Concentration (colonies/100 mL)',
+    title = 'Bacteria Concentration Since 1991 Across Water Sources',
+    caption = 'Figure 3: Bacteria concentration since 1991 across water sources'
+  ) +
+  theme_bw()
+  
+water_tidy |> #Surface water averages
+  filter(medium == 'Surface Water') |>
+  group_by(year) |>
+  summarize(mean_concentration = mean(result))
+
+water_tidy |> #Mean concentrations in colonies/100 mL, ground water averages
+  filter(medium == 'Ground Water') |>
+  group_by(year) |>
+  summarize(mean_concentration = mean(result))
+```
+
+Surface water concentrations are much more frequently reported than groundwater concentrations. Groundwater concentrations have stayed approximately the same since 1991 but given the low amount of data, this claim is dubious. Surface water concentrations were extremely high in the 20th century (an average of 3639.89 colonies/100 mL in 1991) and have consistently improved in the 21st century (an average of 70.32 colonies/100 mL in 2010). However, there appears to be a slight uptick in concentration in recent years as shown by the right tail in Figure 3 of surface water concentrations.
+
+-   Explore your data with visualizations and summary statistics.
+
+-   Make a visualization representing the distribution of each variable included in the research question and report the appropriate summary statistics. If a team project, each member makes a visualization for each variable included in their research question. If some variables are in common across the team members, then try a different approach (there are so many ways to make visualizations in ggplot).
+
+-   Make at least 2 visualizations representing relationships between 2 variables reporting the appropriate summary statistics. You could also do some visualizations with 3 variables if you'd like. If a team project, each member creates 2 multivariate visualizations, with the appropriate statistics.
+
+-   Include appropriate titles and labels for each visualization and make sure summary statistics are reported with appropriate units. Note: It might be a good idea to number your visualizations to reference them in the Discussion.
+
+-   Write sentences interpreting each visualization with any trend/relationships and referring to appropriate summary statistics.
 
 ------------------------------------------------------------------------
 
