@@ -40,7 +40,7 @@ Each row is a water quality sample by parameter, date, and location in Austin, T
 
 -   Do ground water or surface water sources contain higher bacteria concentrations over time?
 
--   What time of day are most samples being taken at?
+-   What time of day are the bacteria concentrations most present?
 
 -   Describe the data set(s) you have chosen and why you are interested in this data.
 
@@ -104,12 +104,15 @@ There are 1,475,965 rows and 24 columns in the original data set. Much of this d
 
 # Results
 
+## Bacteria Concentration Changes Over Time Per Source
+
 To begin to see the variations in bacteria concentration between ground and surface water concentrations, we must first investigate the distributions of each variable involved. We'll first look at the counts of the types of water sources.
 
 ```{r}
 water_tidy |>
   ggplot() + #Make bar plot of water sources w/o legend
   geom_bar(aes(y = medium, fill = medium), show.legend = F) +
+  scale_x_continuous(breaks = seq(0, 2500, 500)) +
   labs(
     x = 'Number of Sources',
     y = 'Type of Source',
@@ -177,6 +180,75 @@ water_tidy |> #Mean concentrations in colonies/100 mL, ground water averages
 ```
 
 Surface water concentrations are much more frequently reported than groundwater concentrations. Groundwater concentrations have stayed approximately the same since 1991 but given the low amount of data, this claim is dubious. Surface water concentrations were extremely high in the 20th century (an average of 3639.89 colonies/100 mL in 1991) and have consistently improved in the 21st century (an average of 70.32 colonies/100 mL in 2010). However, there appears to be a slight uptick in concentration in recent years as shown by the right tail in Figure 3 of surface water concentrations.
+
+## Time of Day Bacteria Samples Are Taken
+
+In order to see what time of day bacteria samples are taken at, we must first look at the distribution of the time periods the data was acquired. We will find the number of samples collected per year to see this distribution.
+
+```{r}
+water_tidy |>
+  ggplot() +
+  geom_histogram(aes(x = year), binwidth = 2, center = 1, fill = 'lightblue') +
+  scale_x_continuous(breaks = seq(1990, 2024, 2)) + #Show variations for every two years
+  labs(
+    x = 'Year',
+    y = 'Frequency of Sample Collection',
+    title = 'Distribution of Samples Collected over Time',
+    caption = 'Figure 4: Distribution of samples collected over time'
+  ) +
+  theme_bw()
+
+water_tidy |> #Count number of samples collected per year
+  group_by(year) |>
+  summarize(count = n())
+```
+
+We see a right-tailed, bimodal distribution where more samples were taken in the 90's and decreased in the 2000's. The most samples were taken in 1994 at 254 samples. The least samples were taken in 2006 at 17 samples.
+
+Next, we look at the distribution of samples taken per bacteria type. We can make a barplot for the distribution and compare across the bars.
+
+```{r}
+water_tidy |>
+  group_by(parameter) |>
+  summarize(count = n()) |>
+  ggplot() + #Bar plot showing number of samples that had a given bacteria concentration
+  geom_bar(aes(x = count, y = parameter, fill = parameter), stat = 'identity', show.legend = F) +
+  labs(
+    x = 'Number of Samples',
+    y = 'Type of Bacteria',
+    title = 'Distribution of Bacteria Samples in Austin',
+    caption = 'Figure 5: Distribution of bacteria samples in Austin, TX'
+  ) +
+  theme_bw()
+
+water_tidy |>
+  group_by(parameter) |> #count bacteria and percent in total
+  summarize(count = n(),
+            percent = 100*n()/nrow(water_tidy))
+```
+
+The bacteria that was found the most is fecal coliform in 1245 samples while the least is the total coliform bacteria in only 11 samples. Next, we can find the hour at which the samples were taken for each type of bacteria.
+
+```{r}
+water_tidy |>
+  ggplot() +
+  geom_bar(aes(x = hour(date), fill = parameter), show.legend = F) +
+  scale_x_continuous(breaks = seq(0, 24, 2)) + #Change x axis to show more variation every 2 hours
+  facet_wrap(~parameter) +
+  theme_bw() +
+  labs(
+    x = 'Hour Since Midnight',
+    y = 'Number of Samples',
+    title = 'Distribution of Samples per Day Across Bacteria Type',
+    caption = 'Figure 6: Distribution of samples per day across bacteria type'
+  )
+
+water_tidy |> #Find number of samples taken per hour
+  group_by(hour(date)) |>
+  summarize(count = n())
+```
+
+INSERT DISCUSSION HERE
 
 -   Explore your data with visualizations and summary statistics.
 
