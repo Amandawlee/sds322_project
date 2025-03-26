@@ -70,6 +70,7 @@ water_tidy <- water |>
   select(data_ref_no, watershed, site_type, site_name, sample_date, lat_dd_wgs84, lon_dd_wgs84, param_type, parameter, result, method, medium, unit) |>
   # Remove any missing NA values with selected columns
   na.omit() |>
+  filter(parameter != 'HETEROTROPHIC PLATE COUNT') |> #Filter out since only contained in one observation
   mutate(date = mdy_hms(sample_date), year = year(date))
 
 head(water_tidy)
@@ -103,7 +104,6 @@ To begin to see the variations in bacteria concentration between ground and surf
 water_tidy |>
   ggplot() + #Make bar plot of water sources w/o legend
   geom_bar(aes(y = medium, fill = medium), show.legend = F) +
-  scale_x_continuous(breaks = seq(0, 2500, 500)) +
   labs(
     x = 'Number of Sources',
     y = 'Type of Source',
@@ -117,13 +117,13 @@ water_tidy |> #Calculate summary statistics (counts) for water sources
   summarize(count = n())
 ```
 
-From Figure 1 and the summary statistics, there are 84 ground water sources and 2622 surface water sources. Next, we'll look at the distribution of bacteria concentration across all sources. This will include the following bacteria: total coliform bacteria, fecal streptococci, fecal coliform bacteria, and E coli bacteria. The EPA recommends that for a domestic water supply that is to be treated, concentrations for the previously mentioned bacteria should be less than 2000 colonies per 100 milliliters. Therefore, the visualization only looks at bacteria concentrations in excess of 2000 colonies/100 mL.
+From Figure 1 and the summary statistics, the three largest sources are 1704 storm water sources, 9161 ground water sources, and 22531 surface water sources. Moving forward, storm water sources will not be included for analysis since they have wildly different bacteria concentrations and cannot be controlled by community intervention. Next, we'll look at the distribution of bacteria concentration across all sources. This will include the following bacteria: total coliform bacteria, fecal streptococci, fecal coliform bacteria, E coli bacteria, and enterococcus. Total coliform bacteria is filtered out since it only accounts for a single row and happened only one time. The EPA recommends that for a domestic water supply that is to be treated, concentrations for the previously mentioned bacteria should be less than 2000 colonies per 100 milliliters. Therefore, the visualization only looks at bacteria concentrations in excess of 2000 colonies/100 mL.
 
 ```{r}
 water_tidy |>
-  filter(result >= 2000) |> #Only look at concentrations above 2000 colonies/100 mL
+  filter(result >= 2000 & result < 10000) |> #Only look at concentrations above 2000 colonies/100 mL and less than 10000 to see general trend
   ggplot() +
-  geom_histogram(aes(x = result, fill = parameter), show.legend = F, binwidth = 25000/2, center = 25000/4) +
+  geom_histogram(aes(x = result, fill = parameter), show.legend = F, binwidth = 1000, center = 500) +
   facet_wrap(~parameter) +
   labs(
     x = 'Concentration of Bacteria (Colonies/100 mL)',
@@ -132,6 +132,7 @@ water_tidy |>
     caption = 'Figure 2: Distribution of the relative concentrations of bacteria in Austin, TX'
   ) + 
   theme_bw()
+
   
 
 water_tidy |> #All units are colonies/100 mL
@@ -142,12 +143,13 @@ water_tidy |> #All units are colonies/100 mL
             IQR_concentration = IQR(result))
 ```
 
-Figure 2 and the summary statistics show us large variations in the dangerous concentrations of bacteria in water sources in Austin. Mean concentrations of fecal streptococci are above the safe limit at 2055.33 colonies/100 mL with total coliform bacteria concentrations following close behind at 1673.01 colonies/ 100 mL. However, the standard deviation for each bacteria concentration is on the order of hundreds or and thousands, implying that there are still many locations of dangerously high bacteria concentration.
+Figure 2 and the summary statistics show us large variations in the dangerous concentrations of bacteria in water sources in Austin. Mean concentrations of fecal streptococci are above the safe limit at 6072.42 colonies/100 mL with total coliform bacteria concentrations following close behind at 1299.784 colonies/100 mL. However, the standard deviation for each bacteria concentration is on the order of thousands and tens of thousands, implying that there are still many locations of dangerously high bacteria concentration.
 
 Finally, we can look at the changing concentrations of bacteria over time in both surface and ground water sources.
 
 ```{r}
 water_tidy |>
+  filter(medium == 'Ground Water' | medium == 'Surface Water' & medium != 'Storm Water') |>
   ggplot() + #Make two plots for each water source of results as they change per year
   geom_point(aes(x = year, y = result, color = medium), show.legend = F) +
   facet_wrap(~medium) +
@@ -170,7 +172,7 @@ water_tidy |> #Mean concentrations in colonies/100 mL, ground water averages
   summarize(mean_concentration = mean(result))
 ```
 
-Surface water concentrations are much more frequently reported than groundwater concentrations. Groundwater concentrations have stayed approximately the same since 1991 but given the low amount of data, this claim is dubious. Surface water concentrations were extremely high in the 20th century (an average of 3639.89 colonies/100 mL in 1991) and have consistently improved in the 21st century (an average of 70.32 colonies/100 mL in 2010). However, there appears to be a slight uptick in concentration in recent years as shown by the right tail in Figure 3 of surface water concentrations.
+Surface water concentrations are much more frequently reported than groundwater concentrations. Groundwater concentrations have stayed approximately the same since 1990. Surface water concentrations were extremely high in the 20th century (an average of 23713.57 colonies/100 mL in 1994) and have consistently improved in the 21st century (an average of 212.04 colonies/100 mL in 2010). However, there appears to be a slight uptick in concentration in recent years as shown by the right tail in Figure 3 of surface water concentrations.
 
 ## Time of Day Bacteria Samples Are Taken
 
@@ -180,7 +182,7 @@ In order to see what time of day bacteria samples are taken at, we must first lo
 water_tidy |>
   ggplot() +
   geom_histogram(aes(x = year), binwidth = 2, center = 1, fill = 'lightblue') +
-  scale_x_continuous(breaks = seq(1990, 2024, 2)) + #Show variations for every two years
+  scale_x_continuous(breaks = seq(1986, 2025, 3)) + #Show variations for every three years
   labs(
     x = 'Year',
     y = 'Frequency of Sample Collection',
@@ -194,7 +196,7 @@ water_tidy |> #Count number of samples collected per year
   summarize(count = n())
 ```
 
-We see a right-tailed, bimodal distribution where more samples were taken in the 90's and decreased in the 2000's. The most samples were taken in 1994 at 254 samples. The least samples were taken in 2006 at 17 samples.
+We see an approximately unimodal distribution where more samples were taken in the 90's and decreased in the 2000's. The most samples were taken in 2009 at 1857 samples. The least samples were taken in 1987 at 10 samples.
 
 Next, we look at the distribution of samples taken per bacteria type. We can make a barplot for the distribution and compare across the bars.
 
@@ -218,7 +220,7 @@ water_tidy |>
             percent = 100*n()/nrow(water_tidy))
 ```
 
-The bacteria that was found the most is fecal coliform in 1245 samples while the least is the total coliform bacteria in only 11 samples. Next, we can find the hour at which the samples were taken for each type of bacteria.
+The bacteria that was found the most is E coli in 14852 samples while the least is enterococcus in only 167 samples. Next, we can find the hour at which the samples were taken for each type of bacteria.
 
 ```{r}
 water_tidy |>
@@ -239,8 +241,7 @@ water_tidy |> #Find number of samples taken per hour
   summarize(count = n())
 ```
 
-For fecal streptococci and fecal coliform bacteria, midnight is the most frequent time for sample collection (681 samples). However, this is likely the default time entered for when the exact collection time is unknown. After the midnight peak, the next most frequent time is around 11 AM and noon (553 samples).
-
+For fecal streptococci, fecal coliform bacteria, and E coli, midnight is the most frequent time for sample collection (15988 samples). However, this is likely the default time entered for when the exact collection time is unknown. After the midnight peak, the next most frequent time is around 11 AM and noon (3165 samples).
 
 ```{r}
 # Exploring safe E. Coli concentrations in relation to location of samples
@@ -265,6 +266,7 @@ water_tidy |>
   group_by(ecoli_safe) |>
   summarize(count = n())
 ```
+
 -   Explore your data with visualizations and summary statistics.
 
 -   Make a visualization representing the distribution of each variable included in the research question and report the appropriate summary statistics. If a team project, each member makes a visualization for each variable included in their research question. If some variables are in common across the team members, then try a different approach (there are so many ways to make visualizations in ggplot).
@@ -279,9 +281,10 @@ water_tidy |>
 
 # Discussion
 
-After conducting this analysis, we have a better picture of bacteria concentrations in Austin. We can now see the changes across day and water source. To begin with, Figure 1 tells us that the majority of water sources are surface water sources (2522 sources). This tells us that our focus should be on testing surface water sources since they affect the most people. This is supported by Figure 3 where we see that almost all sampling has historically been done on surface water sources. However, Figures 3 and 4 also indicate that testing efforts have waned in the 21st century. While this is likely partly due to improved experimental analysis methods, it still represents a danger to the community since contamination could be missed with less testing.
+After conducting this analysis, we have a better picture of bacteria concentrations in Austin. We can now see the changes across day and water source. To begin with, Figure 1 tells us that the majority of water sources are surface water sources (22531 sources). This tells us that our focus should be on testing surface water sources since they affect the most people. This is supported by Figure 3 where we see that almost all sampling has historically been done on surface water sources. However, Figures 3 and 4 also indicate that testing efforts have waned in the 21st century. While this is likely partly due to improved experimental analysis methods, it still represents a danger to the community since contamination could be missed with less testing.
 
-To see the variations in a day, we can look to Figures 5 and 6. Fecal coliform bacteria dominate and are present in 1245 samples. Samples are most often taken in the late morning, between 11 AM and noon (ignoring the midnight category). The trend makes sense given that these times are during the workday and when most people are active. However, it is important to note that this is the warmest part of the day. Sampling methods will be affected by the temperature and properties of the water. Further research needs to be done on how this trend affects the measured bacteria concentration. The trends approximately agreed with expected findings of most frequent sampling happening during the day. We also did expect highest bacteria concentrations to appear in water sources closest to the outside environment. This was proven by the data and the dominance of surface water sources.
+
+To see the variations in a day, we can look to Figures 5 and 6. E coli bacteria are highly present in the samples, representing 14852 samples. Samples are most often taken in the late morning, between 11 AM and noon (ignoring the midnight category). The trend makes sense given that these times are during the workday and when most people are active. However, it is important to note that this is the warmest part of the day. Sampling methods will be affected by the temperature and properties of the water. Further research needs to be done on how this trend affects the measured bacteria concentration. The trends approximately agreed with expected findings of most frequent sampling happening during the day. We also did expect highest bacteria concentrations to appear in water sources closest to the outside environment. This was proven by the data and the dominance of surface water sources.
 
 -   Put it all together, what did you learn from your data?
 
