@@ -7,15 +7,6 @@ output:
     toc_depth: 3
 ---
 
-```{r global_options, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, eval = TRUE,  
-                      warning = TRUE, message = FALSE, 
-                      fig.align = "center",
-                      R.options = list(max.print=100))
-
-library(tidyverse)
-```
-
 ------------------------------------------------------------------------
 
 # Title and Introduction
@@ -68,6 +59,9 @@ library(tidyverse)
 ```
 
 ```{r}
+# Importing 2024 Austin water quality sampling data set 
+water <- read.csv('https://raw.githubusercontent.com/Amandawlee/sds322_project/refs/heads/main/Water_Quality_Sampling_Data.csv')
+
 # Data tidying/wrangling
 water_tidy <- water |>
   # Remove any missing NA values
@@ -76,15 +70,14 @@ water_tidy <- water |>
   rename_all(~ str_to_lower(.)) |>
   # Select all relevant columns
   select(data_ref_no, sample_date,lat_dd_wgs84, lon_dd_wgs84, param_type, parameter, result, method, medium, unit) |>
-  # Filter for Bacteria/Pathogen parameter type
-  filter(param_type == "Bacteria/Pathogens") |>
-  filter(medium == 'Ground Water' | medium == 'Surface Water') |>
+  #filter(param_type == "Bacteria/Pathogens")
+  #filter(medium == 'Ground Water' | medium == 'Surface Water') |>
   mutate(date = mdy_hms(sample_date), year = year(date))
 
 head(water_tidy)
 ```
 
-There are 1,475,965 rows and 24 columns in the original data set. Much of this data is unconcerned with dangerous chemicals or pathogens and thus we have limited the data set to bacteria/pathogen samples since this has one of the most hazardous affects on health. The data set 'water' contains 34893 rows and 24 columns.
+There are 1,475,965 rows and 24 columns in the original data set. Much of this data is unconcerned with dangerous chemicals or pathogens and thus we have limited the data set to bacteria/pathogen samples through the City of Austin open data portal since this has one of the most hazardous effects on health. The data set 'water' contains 34893 rows and 24 columns.
 
 -   Wrangle data and document any steps taken to get the data set in shape for data analysis.
 
