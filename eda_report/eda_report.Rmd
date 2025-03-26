@@ -23,13 +23,15 @@ This analysis will look at water quality data from the City of Austin's Open Dat
 
 ![A picture of Barton Springs, one of Austin's significant groundwater aquifers. Taken from <https://www.austintexas.org/listings/barton-springs-pool/4687/>.](https://assets.simpleviewinc.com/simpleview/image/upload/c_limit,q_75,w_1200/v1/crm/austin/011-421ace03bc29117_421acf68-dde1-a643-f8d4f8148337c3cd.jpg)
 
-In an article from Inside Climate News, author Martha Pskowski writes that "there are 224 public water supply wells that are considered contaminated", according to the Texas Groundwater Protection Committee's annual report. For a growing state with less and less surface water sources, this issue is one that cannot be ignored if Texas hopes to continue to attract new residents. Additionally, water quality testing extends to agriculture as well. As the "largest consumer of groundwater statewide", the agricultural sector's handling of water quality impacts the diet of every Texan.
+In an article from Inside Climate News, author Martha Pskowski writes that "there are 224 public water supply wells that are considered contaminated", according to the Texas Groundwater Protection Committee's annual report. For a growing state with less and less surface water sources, this issue is one that cannot be ignored if Texas hopes to continue to attract new residents. Water quality testing extends to agriculture as well. As the "largest consumer of groundwater statewide", the agricultural sector's handling of water quality impacts the diet of every Texan.
 
 The data set to be analyzed can be found here: <https://data.austintexas.gov/Environment/Water-Quality-Sampling-Data/5tye-7ray/about_data>.
 
 Each row is a water quality sample by parameter, date, and location in Austin, TX. We are primarily interested in variables watershed, site_type, and result to understand the distribution of water quality across Austin. The following research questions are investigated in this report:
 
--   **How do bacteria concentrations vary by time of day and type of water source? Nabil**
+-   **How do bacteria/pathogen concentrations vary by time of day and type of water source? (Nabil)**
+
+-   **How do bacteria/pathogen concentrations vary by site type and location? (Amanda)**
 
 -   Describe the data set(s) you have chosen and why you are interested in this data.
 
@@ -62,14 +64,12 @@ water <- read.csv('https://raw.githubusercontent.com/Amandawlee/sds322_project/r
 
 # Data tidying/wrangling
 water_tidy <- water |>
-  # Remove any missing NA values
-  na.omit() |>
   # Rename columns to lowercase
   rename_all(~ str_to_lower(.)) |>
   # Select all relevant columns
-  select(site_type, data_ref_no, sample_date,lat_dd_wgs84, lon_dd_wgs84, param_type, parameter, result, method, medium, unit) |>
-  #filter(param_type == "Bacteria/Pathogens")
-  #filter(medium == 'Ground Water' | medium == 'Surface Water') |>
+  select(data_ref_no, watershed, site_type, site_name, sample_date, lat_dd_wgs84, lon_dd_wgs84, param_type, parameter, result, method, medium, unit) |>
+  # Remove any missing NA values with selected columns
+  na.omit() |>
   mutate(date = mdy_hms(sample_date), year = year(date))
 
 head(water_tidy)
@@ -241,6 +241,30 @@ water_tidy |> #Find number of samples taken per hour
 
 For fecal streptococci and fecal coliform bacteria, midnight is the most frequent time for sample collection (681 samples). However, this is likely the default time entered for when the exact collection time is unknown. After the midnight peak, the next most frequent time is around 11 AM and noon (553 samples).
 
+
+```{r}
+# Exploring safe E. Coli concentrations in relation to location of samples
+water_tidy |>
+  filter(parameter == "E COLI BACTERIA") |>
+  mutate(ecoli_safe = ifelse(result >= 200, F, T)) |>
+  ggplot() +
+  #Plot lat/long map and color based on safety
+  geom_point(aes(x = lon_dd_wgs84, y = lat_dd_wgs84, color = ecoli_safe)) +
+  scale_color_manual(values = c("forestgreen", "red"), name = ">= 200 colonies/100 mL") +
+  labs(
+    x = 'Longitude (degrees)',
+    y = 'Latitude (degrees)',
+    title = 'Distribution of Safe E. Coli Concentrations across the Austin Area',
+    caption = "Information on safe concentrations of E. Coli in recreational water:\n https://www.knowyourh2o.com/outdoor-4/fecal-coliform-bacteria-in-water"
+  ) +
+  theme_bw()
+
+water_tidy |>  
+  filter(parameter == "E COLI BACTERIA") |>
+  mutate(ecoli_safe = ifelse(result >= 200, F, T)) |>
+  group_by(ecoli_safe) |>
+  summarize(count = n())
+```
 -   Explore your data with visualizations and summary statistics.
 
 -   Make a visualization representing the distribution of each variable included in the research question and report the appropriate summary statistics. If a team project, each member makes a visualization for each variable included in their research question. If some variables are in common across the team members, then try a different approach (there are so many ways to make visualizations in ggplot).
