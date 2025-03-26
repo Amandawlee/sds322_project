@@ -9,7 +9,7 @@ output:
 
 ------------------------------------------------------------------------
 
-# Title and Introduction
+# Austin Water Safety: Exploratory Data Analysis
 
 ## Names and EIDs:
 
@@ -17,7 +17,7 @@ output:
 
 -   Nabil Yusufali, nay277
 
-## Instructions:
+# Introduction:
 
 This analysis will look at water quality data from the City of Austin's Open Data Portal. It is collected to assess water quality conditions in the natural creeks, aquifers, and lakes in Austin and surrounding areas. Citizens have a right to know more about their water quality. Especially given that we, as students, use the same water everyday. Therefore, learning more about the water quality could give actionable insights into how to make better water decisions.
 
@@ -29,9 +29,7 @@ The data set to be analyzed can be found here: <https://data.austintexas.gov/Env
 
 Each row is a water quality sample by parameter, date, and location in Austin, TX. We are primarily interested in variables watershed, site_type, and result to understand the distribution of water quality across Austin. The following research questions are investigated in this report:
 
--   Do ground water or surface water sources contain higher bacteria concentrations over time?
-
--   What time of day are the bacteria concentrations most present?
+-   **How do bacteria concentrations vary by time of day and type of water source? Nabil**
 
 -   Describe the data set(s) you have chosen and why you are interested in this data.
 
@@ -69,7 +67,7 @@ water_tidy <- water |>
   # Rename columns to lowercase
   rename_all(~ str_to_lower(.)) |>
   # Select all relevant columns
-  select(data_ref_no, sample_date,lat_dd_wgs84, lon_dd_wgs84, param_type, parameter, result, method, medium, unit) |>
+  select(site_type, data_ref_no, sample_date,lat_dd_wgs84, lon_dd_wgs84, param_type, parameter, result, method, medium, unit) |>
   #filter(param_type == "Bacteria/Pathogens")
   #filter(medium == 'Ground Water' | medium == 'Surface Water') |>
   mutate(date = mdy_hms(sample_date), year = year(date))
@@ -241,7 +239,7 @@ water_tidy |> #Find number of samples taken per hour
   summarize(count = n())
 ```
 
-INSERT DISCUSSION HERE
+For fecal streptococci and fecal coliform bacteria, midnight is the most frequent time for sample collection (681 samples). However, this is likely the default time entered for when the exact collection time is unknown. After the midnight peak, the next most frequent time is around 11 AM and noon (553 samples).
 
 -   Explore your data with visualizations and summary statistics.
 
@@ -256,6 +254,10 @@ INSERT DISCUSSION HERE
 ------------------------------------------------------------------------
 
 # Discussion
+
+After conducting this analysis, we have a better picture of bacteria concentrations in Austin. We can now see the changes across day and water source. To begin with, Figure 1 tells us that the majority of water sources are surface water sources (2522 sources). This tells us that our focus should be on testing surface water sources since they affect the most people. This is supported by Figure 3 where we see that almost all sampling has historically been done on surface water sources. However, Figures 3 and 4 also indicate that testing efforts have waned in the 21st century. While this is likely partly due to improved experimental analysis methods, it still represents a danger to the community since contamination could be missed with less testing.
+
+To see the variations in a day, we can look to Figures 5 and 6. Fecal coliform bacteria dominate and are present in 1245 samples. Samples are most often taken in the late morning, between 11 AM and noon (ignoring the midnight category). The trend makes sense given that these times are during the workday and when most people are active. However, it is important to note that this is the warmest part of the day. Sampling methods will be affected by the temperature and properties of the water. Further research needs to be done on how this trend affects the measured bacteria concentration. The trends approximately agreed with expected findings of most frequent sampling happening during the day. We also did expect highest bacteria concentrations to appear in water sources closest to the outside environment. This was proven by the data and the dominance of surface water sources.
 
 -   Put it all together, what did you learn from your data?
 
