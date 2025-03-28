@@ -31,7 +31,7 @@ Each row is a water quality sample by parameter, date, and location in Austin, T
 
 -   **How do bacteria/pathogen concentrations vary by time of day and type of water source? (Nabil)**
 
--   **How do bacteria/pathogen concentrations vary by site type and location? (Amanda)**
+-   **How do bacteria/pathogen concentrations vary by site type in terms of safeness? (Amanda)**
 
 -   Describe the data set(s) you have chosen and why you are interested in this data.
 
@@ -70,13 +70,28 @@ water_tidy <- water |>
   select(data_ref_no, watershed, site_type, site_name, sample_date, lat_dd_wgs84, lon_dd_wgs84, param_type, parameter, result, method, medium, unit) |>
   # Remove any missing NA values with selected columns
   na.omit() |>
-  filter(parameter != 'HETEROTROPHIC PLATE COUNT') |> #Filter out since only contained in one observation
+  #Filter out since only contained in one observation
+  filter(parameter != 'HETEROTROPHIC PLATE COUNT') |>
+  # Filter out coordinates that are not in Austin
+  filter(lon_dd_wgs84 != 0 | lat_dd_wgs84 != 0) |>
   mutate(date = mdy_hms(sample_date), year = year(date))
 
 head(water_tidy)
 ```
 
-There are 1,475,965 rows and 24 columns in the original data set. Much of this data is unconcerned with dangerous chemicals or pathogens and thus we have limited the data set to bacteria/pathogen samples through the City of Austin open data portal since this has one of the most hazardous effects on health. The data set 'water' contains 34893 rows and 24 columns.
+There are 1,475,965 rows and 24 columns in the original data set. Much of this data is unconcerned with dangerous chemicals or pathogens and thus we have limited the data set to bacteria/pathogen samples through the City of Austin open data portal since this has one of the most hazardous effects on health. The data set 'water' contains 34,893 rows and 24 columns.
+
+Additionally, the data was tidied/wrangled with the following changes or omissions. The resulting data set 'water_tidy' contains 32,758 rows and 15 columns.
+
+1.  All column names were converted to lowercase.
+
+2.  Only 15 relevant columns out of 24 were selected for analysis (data_ref_no, watershed, site_type, site_name, sample_date, lat_dd_wgs84, lon_dd_wgs84, param_type, parameter, result, method, medium, unit).
+
+3.  Any missing NA values within the selected columns were removed.
+
+4.  The parameter 'HETEROTROPHIC PLATE COUNT' was filtered out since there was only one observation.
+
+5.  Any observations with a latitude or longitude coordinate of 0° will be excluded, as these coordinates do not fall within the Austin area.
 
 -   Wrangle data and document any steps taken to get the data set in shape for data analysis.
 
@@ -96,9 +111,9 @@ There are 1,475,965 rows and 24 columns in the original data set. Much of this d
 
 # Results
 
-## Bacteria Concentration Changes Over Time Per Source
+## Bacteria/Pathogen Concentration Changes Over Time Per Source
 
-To begin to see the variations in bacteria concentration between ground and surface water concentrations, we must first investigate the distributions of each variable involved. We'll first look at the counts of the types of water sources.
+To begin to see the variations in bacteria/pathogen concentrations between ground and surface water concentrations, we must first investigate the distributions of each variable involved. We'll first look at the counts of the types of water sources.
 
 ```{r}
 water_tidy |>
@@ -174,7 +189,7 @@ water_tidy |> #Mean concentrations in colonies/100 mL, ground water averages
 
 Surface water concentrations are much more frequently reported than groundwater concentrations. Groundwater concentrations have stayed approximately the same since 1990. Surface water concentrations were extremely high in the 20th century (an average of 23713.57 colonies/100 mL in 1994) and have consistently improved in the 21st century (an average of 212.04 colonies/100 mL in 2010). However, there appears to be a slight uptick in concentration in recent years as shown by the right tail in Figure 3 of surface water concentrations.
 
-## Time of Day Bacteria Samples Are Taken
+## Time of Day Bacteria/Pathogen Samples Are Taken
 
 In order to see what time of day bacteria samples are taken at, we must first look at the distribution of the time periods the data was acquired. We will find the number of samples collected per year to see this distribution.
 
@@ -226,7 +241,7 @@ The bacteria that was found the most is E coli in 14852 samples while the least 
 water_tidy |>
   ggplot() +
   geom_bar(aes(x = hour(date), fill = parameter), show.legend = F) +
-  scale_x_continuous(breaks = seq(0, 24, 2)) + #Change x axis to show more variation every 2 hours
+  scale_x_continuous(breaks = seq(0, 24, 2)) + # Change x axis to show more variation every 2 hours
   facet_wrap(~parameter) +
   theme_bw() +
   labs(
@@ -243,29 +258,223 @@ water_tidy |> #Find number of samples taken per hour
 
 For fecal streptococci, fecal coliform bacteria, and E coli, midnight is the most frequent time for sample collection (15988 samples). However, this is likely the default time entered for when the exact collection time is unknown. After the midnight peak, the next most frequent time is around 11 AM and noon (3165 samples).
 
+## Bacteria/Pathogen Concentrations by Location
+
+First, we will examine the distribution of bacteria/pathogen concentrations across Austin, Texas.
+
 ```{r}
-# Exploring safe E. Coli concentrations in relation to location of samples
+# Exploring all bacteria/pathogen concentrations in relation to location of samples
 water_tidy |>
-  filter(parameter == "E COLI BACTERIA") |>
-  mutate(ecoli_safe = ifelse(result >= 200, F, T)) |>
+  #Plot lat/long map
   ggplot() +
-  #Plot lat/long map and color based on safety
-  geom_point(aes(x = lon_dd_wgs84, y = lat_dd_wgs84, color = ecoli_safe)) +
-  scale_color_manual(values = c("forestgreen", "red"), name = ">= 200 colonies/100 mL") +
+  geom_point(aes(x = lon_dd_wgs84, y = lat_dd_wgs84)) +
   labs(
-    x = 'Longitude (degrees)',
-    y = 'Latitude (degrees)',
-    title = 'Distribution of Safe E. Coli Concentrations across the Austin Area',
-    caption = "Information on safe concentrations of E. Coli in recreational water:\n https://www.knowyourh2o.com/outdoor-4/fecal-coliform-bacteria-in-water"
+    x = 'Longitude (°)',
+    y = 'Latitude (°)',
+    title = 'Distribution of all Bacteria/Pathogen Concentrations across Austin',
+    caption = 'Figure 7: Distribution of All Bacteria/Pathogen Concentrations across Austin'
   ) +
   theme_bw()
 
-water_tidy |>  
-  filter(parameter == "E COLI BACTERIA") |>
-  mutate(ecoli_safe = ifelse(result >= 200, F, T)) |>
-  group_by(ecoli_safe) |>
+# Exploring all bacteria/pathogen concentrations in relation to location of samples by parameter
+water_tidy |>
+  # Filter out coordinates that are not in Austin
+  filter(lon_dd_wgs84 != 0 | lat_dd_wgs84 != 0) |>
+  #Plot lat/long map
+  ggplot() +
+  geom_point(aes(x = lon_dd_wgs84, y = lat_dd_wgs84, color = parameter), show.legend = FALSE) +
+  labs(
+    x = 'Longitude (°)',
+    y = 'Latitude (°)',
+    title = 'Distribution of Bacteria/Pathogen Concentrations across Austin by Parameter',
+    caption = 'Figure 8: Distribution of Bacteria/Pathogen Concentrations across Austin by Parameter'
+  ) +
+  facet_wrap(~parameter) +
+  theme_bw()
+```
+
+From Figures 7 and 8, there are higher bacteria/pathogen concentrations in the central areas of Austin compared to the outer regions. This pattern suggests several potential factors. The central part of Austin contains a higher population density and increased human activity, which can contribute to the proliferation of bacteria and pathogens. Additionally, urban environments often have more sources of pollution and waste, which can create favorable conditions for microbial growth. The outer areas, being less densely populated and more suburban or rural, may have fewer such sources, leading to lower bacteria/pathogen concentrations.
+
+## Safe Bacteria/Pathogen Concentrations Levels by Site Type
+
+The US EPA sets specific recommendations for safe bacteria/pathogen concentrations in various water types to protect public health. These standards help ensure that water used for various purposes, from recreation to consumption, remains safe and free from harmful levels of pathogens. We will focus on three water types: recreational, treatment, and drinking.
+
+Figure 9 is a distribution of bacteria/pathogen concentrations by site types in Austin, Texas.
+
+```{r}
+# Identifying the different site types
+water_tidy |>
+  group_by(site_type) |>
+  ggplot() +
+  geom_bar(aes(y = site_type, fill = site_type), show.legend = F) +
+  labs(
+    x = 'Frequency of Site Type',
+    y = 'Site Type',
+    title = 'Distribution of Site Types',
+    caption = 'Figure 9: Distribution of site types in Austin, TX'
+  ) + 
+  theme_bw()
+
+water_tidy |>
+  group_by(site_type) |>
   summarize(count = n())
 ```
+
+### Recreational Water
+
+For recreational water, we will look at site types lakes, springs, and streams because these waters are typically considered for recreational activities such as swimming, boating, and fishing. We will compare on E. coli and enterococcus concentrations with fecal coliform bacteria concentrations because the EPA emphasizes the former as better indicators.
+
+```{r}
+# Frequency of recreational water site types
+water_tidy |>
+  filter(site_type %in% c('Lake', 'Spring', 'Stream')) |>
+  group_by(site_type) |>
+  summarize(count = n())
+```
+
+The EPA's current standards in recreational water are a geometric mean of **no more than 126 colony-forming units (CFU) per 100 mL for E. coli** and a geometric mean of **no more than 35 CFU per 100 mL for enterococcus**. The EPA previously recommended a geometric mean of **no more than 200 CFU per 100 mL for fecal coliform bacteria**. In general, these thresholds are particularly significant for water used in activities where direct contact with skin is common. Maintaining below these amounts ensure that the water is safe for recreational use, reducing the risk of infections and other health issues associated with exposure to contaminated water.
+
+Note: Colonies/per 100 mL is the same as CFU/100 mL.
+
+Information on safe concentrations of E. coli and enterococcus in recreational water can be found here: <https://www.epa.gov/sites/default/files/2015-10/documents/rec-factsheet-2012.pdf>. Information on safe concentrations of fecal coliform bacteria in recreational waters can be found here: <https://www.knowyourh2o.com/outdoor-4/fecal-coliform-bacteria-in-water>/
+
+```{r}
+# Comparing all three parameters in terms of safeness in recreational water
+water_tidy |>
+  filter(site_type %in% c('Lake', 'Spring', 'Stream')) |>
+  filter(parameter %in% c("E COLI BACTERIA", "ENTEROCOCCUS", "FECAL COLIFORM BACTERIA")) |>
+  mutate(safeness = case_when(
+    parameter == "E COLI BACTERIA" & result <= 126 ~ T,
+    parameter == "E COLI BACTERIA" & result > 126 ~ F,
+    parameter == "ENTEROCOCCUS" & result <= 35 ~ T,
+    parameter == "ENTEROCOCCUS" & result > 35 ~ F,
+    parameter == "FECAL COLIFORM BACTERIA" & result <= 200 ~ T,
+    parameter == "FECAL COLIFORM BACTERIA" & result > 200 ~ F)) |>
+  ggplot() +
+  #Plot lat/long map and color based on safety
+  geom_point(aes(x = lon_dd_wgs84, y = lat_dd_wgs84, color = safeness)) +
+  scale_color_manual(values = c("red", "forestgreen")) +
+  labs(
+    x = 'Longitude (°)',
+    y = 'Latitude (°)',
+    title = 'Distribution Comparing Safeness Levels for Recreational Water',
+    caption = 'Figure 10: Comparison of Safeness Levels for Recreational Water in Austin, TX'
+  ) +
+  facet_wrap(~parameter) +
+  theme_bw()
+
+# Summary statistics
+water_tidy |>
+  filter(site_type %in% c('Lake', 'Spring', 'Stream')) |>
+  filter(parameter %in% c("E COLI BACTERIA", "ENTEROCOCCUS", "FECAL COLIFORM BACTERIA")) |>
+  mutate(safeness = case_when(
+    parameter == "E COLI BACTERIA" & result <= 126 ~ T,
+    parameter == "E COLI BACTERIA" & result > 126 ~ F,
+    parameter == "ENTEROCOCCUS" & result <= 35 ~ T,
+    parameter == "ENTEROCOCCUS" & result > 35 ~ F,
+    parameter == "FECAL COLIFORM BACTERIA" & result <= 200 ~ T,
+    parameter == "FECAL COLIFORM BACTERIA" & result > 200 ~ F)) |>
+  group_by(parameter, safeness) |>
+  summarize(count = n(), .groups = 'drop') |>
+  group_by(parameter) |>
+  mutate(parameter_count = sum(count),
+         proportion = count/parameter_count)
+```
+
+For E. coli bacteria, 71.1% of the samples (9771 out of 13739) are considered safe for recreational use, and 28.9% of the samples (3968 out of 13739) are considered unsafe for recreational use. For enterococcus, only 5.3% of the samples (2 out of 38) are considered safe for recreational use, and 94.7% of the samples (36 out of 38) are considered unsafe for recreational use. For fecal coliform bacteria, 76.0% of the samples (10194 out of 13408) are considered safe for recreational use, and 24.0% of the samples (3214 out of 13408) are considered unsafe for recreational use. Therefore, the majority of samples for E. coli and fecal coliform bacteria are within safe levels for recreational water sites. However, a significant portion of enterococcus samples are above safe levels, indicating potential health risks for recreational activities in those waters.
+
+### Domestic Water Supply
+
+Domestic water supply refers to the provision of water for household uses such as drinking, cooking, cleaning, and bathing. This water typically comes from various sources, including wells, springs, lakes, and streams. Before it reaches homes, the water undergoes rigorous treatment processes to ensure it meets safety standards. These processes include filtration, sedimentation, and disinfection to remove contaminants and pathogens. Ensuring a reliable and safe domestic water supply is crucial for public health and well-being, as it prevents waterborne diseases and supports daily life activities. Proper management and treatment of water sources are essential to maintain the quality and availability of this vital resource.
+
+For domestic water supply, we will look at site types lakes, springs, streams, drinking water tap, and wells. The EPA's current standard in domestic water supply is **fewer than 2000 colonies/100 mL**.
+
+```{r}
+# Frequency of domestic water supply site types
+water_tidy |>
+  filter(site_type %in% c('Lake', 'Spring', 'Stream', 'Well', 'Drinking Water Tap')) |>
+  group_by(site_type) |>
+  summarize(count = n())
+```
+
+Information on safe concentrations of fecal coliform bacteria in recreational waters can be found here: <https://www.knowyourh2o.com/outdoor-4/fecal-coliform-bacteria-in-water>/
+
+```{r}
+# Comparing all fecal coliform bacteria concentration levels for domestic water supply
+water_tidy |>
+  filter(site_type %in% c('Lake', 'Spring', 'Stream', 'Well')) |>
+  filter(parameter == "FECAL COLIFORM BACTERIA") |>
+  mutate(safeness = ifelse(result < 2000, T, F)) |>
+  ggplot() +
+  #Plot lat/long map and color based on safety
+  geom_point(aes(x = lon_dd_wgs84, y = lat_dd_wgs84, color = safeness)) +
+  scale_color_manual(values = c("red", "forestgreen")) +
+  labs(
+    x = 'Longitude (°)',
+    y = 'Latitude (°)',
+    title = 'Distribution of Fecal Coliform Bacteria Safeness Levels in Domestic Water Supply',
+    caption = 'Figure 11: Distribution of Fecal Coliform Bacteria Safeness Levels in Domestic Water Supply in Austin, TX'
+  ) +
+  facet_wrap(~parameter) +
+  theme_bw()
+
+# Summary statistics
+water_tidy |>
+  filter(site_type %in% c('Lake', 'Spring', 'Stream', 'Well')) |>
+  filter(parameter == "FECAL COLIFORM BACTERIA") |>
+  mutate(safeness = ifelse(result < 2000, T, F)) |>
+  group_by(site_type, safeness) |>
+  summarize(count = n(), .groups = 'drop') |>
+  group_by(site_type) |>
+  mutate(site_type_count = sum(count),
+         proportion = count/site_type_count)
+```
+
+For lakes, 95.4% of the samples (1092 out of 1145) are considered safe for domestic water supply, and 4.6% of the samples (53 out of 1145) are considered unsafe for domestic water supply. For springs, 99.9% of the samples (3469 out of 3472) are considered safe for domestic water supply, 0.1% of the samples (3 out of 3472) are considered unsafe for domestic water supply. For streams, 91.7% of the samples (8046 out of 8771) are considered safe for domestic water supply, 8.3% of the samples (725 out of 8771) are considered unsafe for domestic water supply. For wells, 98.0% of the samples (50 out of 51) are considered safe for domestic water supply, 2.0% of the samples (1 out of 51) are considered unsafe for domestic water supply. Therefore, the majority of samples from lakes, springs, streams, and wells are within safe levels for domestic water supply. This indicates that these sources are generally reliable for providing safe water for household use after appropriate treatment.
+
+### Drinking Water
+
+For drinking water, we will look at site types drinking water tap and well because these are typically considered direct sources of drinking water. The EPA's current standard in drinking water is the **absence of E. coli**.
+
+Information on safe concentrations of E. coli bacteria in recreational waters can be found here: <https://www.knowyourh2o.com/outdoor-4/fecal-coliform-bacteria-in-water>/
+
+```{r}
+# Frequency of drinking water site types
+water_tidy |>
+  filter(parameter == 'E COLI BACTERIA') |>
+  filter(site_type %in% c('Drinking Water Tap', 'Well')) |>
+  group_by(site_type) |>
+  summarize(count = n())
+```
+
+```{r}
+# Comparing all E. coli concentration levels in drinking water
+water_tidy |>
+  filter(parameter == 'E COLI BACTERIA') |>
+  filter(site_type %in% c('Drinking Water Tap', 'Well')) |>
+  mutate(safeness = ifelse(result == 0, T, F)) |>
+  ggplot() +
+  #Plot lat/long map and color based on safety
+  geom_point(aes(x = lon_dd_wgs84, y = lat_dd_wgs84, color = safeness)) +
+  scale_color_manual(values = c("red", "forestgreen")) +
+  labs(
+    x = 'Longitude (°)',
+    y = 'Latitude (°)',
+    title = 'Distribution of E. Coli Safeness Levels for Drinking Water ',
+    caption = 'Figure 12: Distribution of E. Coli Safeness Levels for Drinking Water in Austin, TX'
+  ) +
+  theme_bw()
+
+# Summary statistics
+water_tidy |>
+  filter(parameter == 'E COLI BACTERIA') |>
+  filter(site_type %in% c('Drinking Water Tap', 'Well')) |>
+  mutate(safeness = ifelse(result == 0, T, F)) |>
+  group_by(site_type, safeness) |>
+  summarize(count = n(), .groups = 'drop')
+```
+
+All drinking water sites have unsafe E. coli concentrations (greater than 0 CFU/100 mL or 0 MPN/100ML). Therefore, it would be hazardous to drink from these direct sources of water.
 
 -   Explore your data with visualizations and summary statistics.
 
@@ -281,10 +490,13 @@ water_tidy |>
 
 # Discussion
 
-After conducting this analysis, we have a better picture of bacteria concentrations in Austin. We can now see the changes across day and water source. To begin with, Figure 1 tells us that the majority of water sources are surface water sources (22531 sources). This tells us that our focus should be on testing surface water sources since they affect the most people. This is supported by Figure 3 where we see that almost all sampling has historically been done on surface water sources. However, Figures 3 and 4 also indicate that testing efforts have waned in the 21st century. While this is likely partly due to improved experimental analysis methods, it still represents a danger to the community since contamination could be missed with less testing.
-
+After conducting this analysis, we have a better picture of bacteria/pathogen concentrations in Austin. We can now see the changes across day and water source. To begin with, Figure 1 tells us that the majority of water sources are surface water sources (22531 sources). This tells us that our focus should be on testing surface water sources since they affect the most people. This is supported by Figure 3 where we see that almost all sampling has historically been done on surface water sources. However, Figures 3 and 4 also indicate that testing efforts have waned in the 21st century. While this is likely partly due to improved experimental analysis methods, it still represents a danger to the community since contamination could be missed with less testing.
 
 To see the variations in a day, we can look to Figures 5 and 6. E coli bacteria are highly present in the samples, representing 14852 samples. Samples are most often taken in the late morning, between 11 AM and noon (ignoring the midnight category). The trend makes sense given that these times are during the workday and when most people are active. However, it is important to note that this is the warmest part of the day. Sampling methods will be affected by the temperature and properties of the water. Further research needs to be done on how this trend affects the measured bacteria concentration. The trends approximately agreed with expected findings of most frequent sampling happening during the day. We also did expect highest bacteria concentrations to appear in water sources closest to the outside environment. This was proven by the data and the dominance of surface water sources.
+
+We can draw several important conclusions regarding the safeness levels of various water sources for both recreational and domestic use. For recreational water sites, the majority of samples for E. coli and fecal coliform bacteria are within safe levels, with 71.1% and 76.0% of samples respectively being safe. However, enterococcus contamination poses a significant risk, with only 5.3% of samples being safe. This highlights the need for improved water quality measures in recreational areas.
+
+For domestic water supply, most sources such as lakes, springs, streams, and wells are generally safe, with high percentages of safe samples ranging from 91.7% to 99.9%. Nonetheless, occasional instances of unsafe samples from drinking water taps and wells underscore the importance of continuous monitoring and rigorous treatment processes to ensure the safety of domestic water supplies. Ensuring safe water for both recreational and domestic use is vital for preventing waterborne diseases and maintaining overall public health. Continuous efforts in monitoring, treatment, and management of water sources are essential to achieve this goal.
 
 -   Put it all together, what did you learn from your data?
 
@@ -299,6 +511,36 @@ To see the variations in a day, we can look to Figures 5 and 6. E coli bacteria 
 ------------------------------------------------------------------------
 
 # Reflection, Acknowledgements, and References
+
+## Reflection
+
+From the process, we have learned the importance of meticulous data analysis and the need for clear, concise communication. Interpreting data accurately is essential to draw meaningful conclusions and provide actionable insights. Moreover, this project underscored the significance of continuous monitoring and rigorous treatment processes to ensure water safety. It also highlighted the critical role of adhering to regulatory standards to protect public health.
+
+Overall, this project has reinforced the value of detailed analysis, effective data interpretation, and the importance of maintaining high standards in water quality management.
+
+### Challenges
+
+The most challenging aspect of this project was ensuring the accurate interpretation and integration of the data set. Understanding the specific safety standards and guidelines for different types of water required a thorough grasp of regulations/standards and their practical implications.
+
+## Acknowledgements
+
+We would like to extend our sincere gratitude to the City of Austin for providing access to their Open Data Portal. This invaluable resource has been instrumental in our analysis, allowing us to access comprehensive and up-to-date data on water quality and other critical environmental metrics. The transparency and accessibility of this data empower researchers, policymakers, and the community to make informed decisions and take proactive measures to ensure public health and safety. Thank you, City of Austin, for your commitment to open data and for supporting initiatives that enhance the well-being of our community.
+
+## References
+
+### City of Austin Open Data Portal:
+
+-   <https://data.austintexas.gov/Environment/Water-Quality-Sampling-Data/5tye-7ray/about_data>
+
+### Background Context:
+
+-   <https://www.epa.gov/sites/default/files/2015-10/documents/rec-factsheet-2012.pdf>
+
+-   <https://www.knowyourh2o.com/outdoor-4/fecal-coliform-bacteria-in-water>
+
+### Image:
+
+-   <https://data.austintexas.gov/Environment/Water-Quality-Sampling-Data/5tye-7ray/about_data>
 
 -   Reflect on the process of conducting this project.
 
