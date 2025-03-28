@@ -522,6 +522,26 @@ Overall, this project has reinforced the value of detailed analysis, effective d
 
 The most challenging aspect of this project was ensuring the accurate interpretation and integration of the data set. Understanding the specific safety standards and guidelines for different types of water required a thorough grasp of regulations/standards and their practical implications.
 
+### Contributions
+
+Amanda:
+-   Method
+-   Individual research question
+-   Individual results 
+-   Individual discussion 
+-   Individual reflection 
+-   Acknowledgments 
+-   References
+
+Nabil:
+-   Introduction
+-   Method
+-   Individual research question
+-   Individual results
+-   Individual discussion
+-   Individual reflection
+
+
 ## Acknowledgements
 
 We would like to extend our sincere gratitude to the City of Austin for providing access to their Open Data Portal. This invaluable resource has been instrumental in our analysis, allowing us to access comprehensive and up-to-date data on water quality and other critical environmental metrics. The transparency and accessibility of this data empower researchers, policymakers, and the community to make informed decisions and take proactive measures to ensure public health and safety. Thank you, City of Austin, for your commitment to open data and for supporting initiatives that enhance the well-being of our community.
