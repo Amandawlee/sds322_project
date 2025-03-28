@@ -20,7 +20,7 @@ editor_options:
 
 -   Nabil Yusufali, nay277
 
-# Introduction:
+# Introduction
 
 This analysis will look at water quality data from the City of Austin's
 Open Data Portal. It is collected to assess water quality conditions in
@@ -48,38 +48,25 @@ The data set to be analyzed can be found here:
 <https://data.austintexas.gov/Environment/Water-Quality-Sampling-Data/5tye-7ray/about_data>.
 
 Each row is a water quality sample by parameter, date, and location in
-Austin, TX. We are primarily interested in variables watershed,
-site_type, and result to understand the distribution of water quality
-across Austin. The following research questions are investigated in this
-report:
+Austin, TX. We are primarily interested in variables: data_ref_no,
+watershed, site_type, site_name, sample_date, lat_dd_wgs84,
+lon_dd_wgs84, param_type, parameter, result, method, medium, and unit to
+understand the distribution of water quality across Austin. The
+following research questions are investigated in this report:
 
 -   **How do bacteria/pathogen concentrations vary by time of day and
     type of water source? (Nabil)**
 
+    -   It is hypothesized that concentrations will spike during working
+        hours (8 AM to 5 PM) since this is most likely when technicians
+        are out in the field and collecting samples. Highest
+        concentrations will likely be found in sources closer to the
+        surface and/or external environment. They are more exposed to
+        the elements and thus, bacteria have a higher chance of
+        infecting the water.
+
 -   **How do bacteria/pathogen concentrations vary by site type in terms
     of safeness? (Amanda)**
-
--   Describe the data set(s) you have chosen and why you are interested
-    in this data.
-
--   Include a picture related to the topic of your project. Cite the
-    source of the picture (it can be one of your own! For example, a pet
-    you adopted at the Animal Center).
-
--   Cite a previous study or some news article that gives you some
-    background about the topic/context around this data set. Describe
-    how this citation ties to your project: Why is this topic important
-    for you to investigate? What are your motivations?
-
--   Include the link to your data set and quickly describe what
-    information it contains: What does a unique row represent? What are
-    the main variables of interests?
-
--   Write a research question to guide your exploratory data analysis.
-    If a team project, each member suggests 1 research question.
-
--   Try to anticipate what you will learn by conducting this analysis:
-    What trends or relationships do you expect?
 
 ------------------------------------------------------------------------
 
@@ -124,9 +111,11 @@ and 24 columns.
 
 Additionally, the data was tidied/wrangled with the following changes or
 omissions. The resulting data set 'water_tidy' contains 32,758 rows and
-15 columns. This means that 2135 NA rows were dropped from the dataset.
+15 columns. This means that 2,135 NA rows were dropped from the dataset.
 The sample_date variable was converted into two new columns for
-R-formatted date and year.
+R-formatted date and year. After tidying the data, each variable has its
+own column, each observation has its own row, and each value has its own
+cell.
 
 1.  All column names were converted to lowercase.
 
@@ -144,39 +133,11 @@ R-formatted date and year.
     be excluded, as these coordinates do not fall within the Austin
     area.
 
--   Wrangle data and document any steps taken to get the data set in
-    shape for data analysis.
-
--   Organize your data: for example, use single-word names for all
-    variables, filter your data on some conditions, and create all new
-    variables (e.g., transform dates to calculate a duration, regroup
-    categories, ...) in this section.
-
--   Describe your data: How many rows/columns did you start with? How
-    many rows/columns did you end up with? Any reason why you may not
-    have the same amount of rows before/after wrangling?
-
--   Justify if your resulting dataset(s) is tidy.
-
--   If applicable: Handle missing values. Report the number of missing
-    values for each variable. Are you keeping/dropping missing values in
-    the data set? What impact would dropping missing values have on your
-    results?
-
--   If applicable: Include any steps to reshape your data set(s) if the
-    data set is not tidy so that every observation has its own row and
-    every variable its own column.
-
--   If applicable: Includes any steps to join several data sets and
-    combine them in a single data set. Make sure to report how many
-    observations/rows were dropped/added when joining the data sets and
-    discuss any potential issues.
-
 ------------------------------------------------------------------------
 
 # Results
 
-## Bacteria/Pathogen Concentration Changes Over Time Per Source
+## Bacteria/Pathogen Concentration Changes Over Time Per Source and Day
 
 To begin to see the variations in bacteria/pathogen concentrations
 between ground and surface water concentrations, we must first
@@ -185,7 +146,8 @@ look at the counts of the types of water sources.
 
 ```{r}
 water_tidy |>
-  ggplot() + #Make bar plot of water sources w/o legend
+  ggplot() + 
+  #Make bar plot of water sources w/o legend
   geom_bar(aes(y = medium, fill = medium), show.legend = F) +
   labs(
     x = 'Number of Sources',
@@ -667,29 +629,6 @@ All drinking water sites have unsafe E. coli concentrations (greater
 than 0 CFU/100 mL or 0 MPN/100ML). Therefore, it would be hazardous to
 drink from these direct sources of water.
 
--   Explore your data with visualizations and summary statistics.
-
--   Make a visualization representing the distribution of each variable
-    included in the research question and report the appropriate summary
-    statistics. If a team project, each member makes a visualization for
-    each variable included in their research question. If some variables
-    are in common across the team members, then try a different approach
-    (there are so many ways to make visualizations in ggplot).
-
--   Make at least 2 visualizations representing relationships between 2
-    variables reporting the appropriate summary statistics. You could
-    also do some visualizations with 3 variables if you'd like. If a
-    team project, each member creates 2 multivariate visualizations,
-    with the appropriate statistics.
-
--   Include appropriate titles and labels for each visualization and
-    make sure summary statistics are reported with appropriate units.
-    Note: It might be a good idea to number your visualizations to
-    reference them in the Discussion.
-
--   Write sentences interpreting each visualization with any
-    trend/relationships and referring to appropriate summary statistics.
-
 ------------------------------------------------------------------------
 
 # Discussion
@@ -697,7 +636,7 @@ drink from these direct sources of water.
 After conducting this analysis, we have a better picture of
 bacteria/pathogen concentrations in Austin. We can now see the changes
 across day and water source. To begin with, Figure 1 tells us that the
-majority of water sources are surface water sources (22531 sources).
+majority of water sources are surface water sources (22,531 sources).
 This tells us that our focus should be on testing surface water sources
 since they affect the most people. This is supported by Figure 3 where
 we see that almost all sampling has historically been done on surface
@@ -707,7 +646,7 @@ to improved experimental analysis methods, it still represents a danger
 to the community since contamination could be missed with less testing.
 
 To see the variations in a day, we can look to Figures 5 and 6. E coli
-bacteria are highly present in the samples, representing 14852 samples.
+bacteria are highly present in the samples, representing 14,852 samples.
 Samples are most often taken in the late morning, between 11 AM and noon
 (ignoring the midnight category). The trend makes sense given that these
 times are during the workday and when most people are active. However,
@@ -739,22 +678,6 @@ recreational and domestic use is vital for preventing waterborne
 diseases and maintaining overall public health. Continuous efforts in
 monitoring, treatment, and management of water sources are essential to
 achieve this goal.
-
--   Put it all together, what did you learn from your data?
-
--   Answer your research question(s) in context, citing visualizations
-    and summary statistics.
-
--   Did the data match what you expected? Anything surprising? Anything
-    you are curious about?
-
--   If you were going to share your findings with the City of Austin
-    (and you might actually do that!), what would be the main takeaway
-    from your exploratory data analysis?
-
--   Anything you would like to share about the state of the data set
-    (e.g., inconsistency in coding for categories, typos, missing
-    values...)?
 
 ------------------------------------------------------------------------
 
@@ -796,12 +719,37 @@ have columns renamed, rows dropped, and new columns made.
 
 ### Contributions
 
-Amanda: - Method - Individual research question - Individual results -
-Individual discussion - Individual reflection - Acknowledgments -
-References
+Amanda:
 
-Nabil: - Introduction - Method - Individual research question -
-Individual results - Individual discussion - Individual reflection
+-   Method
+
+-   Individual research question
+
+-   Individual results
+
+-   Individual discussion
+
+-   Individual reflection
+
+-   Acknowledgments
+
+-   References
+
+Nabil:
+
+-   Introduction
+
+-   Method
+
+-   Individual research question
+
+-   Individual results
+
+-   Individual discussion
+
+-   Individual reflection
+
+-   Acknowledgments
 
 ## Acknowledgements
 
