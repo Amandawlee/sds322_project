@@ -47,7 +47,7 @@ Each row is a water quality sample by parameter, date, and location in Austin, T
 
 ------------------------------------------------------------------------
 
-# Methods
+# Method
 
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, eval = TRUE,  
@@ -494,7 +494,7 @@ After conducting this analysis, we have a better picture of bacteria/pathogen co
 
 To see the variations in a day, we can look to Figures 5 and 6. E coli bacteria are highly present in the samples, representing 14852 samples. Samples are most often taken in the late morning, between 11 AM and noon (ignoring the midnight category). The trend makes sense given that these times are during the workday and when most people are active. However, it is important to note that this is the warmest part of the day. Sampling methods will be affected by the temperature and properties of the water. Further research needs to be done on how this trend affects the measured bacteria concentration. The trends approximately agreed with expected findings of most frequent sampling happening during the day. We also did expect highest bacteria concentrations to appear in water sources closest to the outside environment. This was proven by the data and the dominance of surface water sources.
 
-We can draw several important conclusions regarding the safeness levels of various water sources for both recreational and domestic use. For recreational water sites, the majority of samples for E. coli and fecal coliform bacteria are within safe levels, with 71.1% and 76.0% of samples respectively being safe. However, enterococcus contamination poses a significant risk, with only 5.3% of samples being safe. This highlights the need for improved water quality measures in recreational areas.
+We can draw several important conclusions regarding the safeness levels of various water sources for both recreational and domestic use from Figures 10-12. For recreational water sites, the majority of samples for E. coli and fecal coliform bacteria are within safe levels, with 71.1% and 76.0% of samples respectively being safe. However, enterococcus contamination poses a significant risk, with only 5.3% of samples being safe. This highlights the need for improved water quality measures in recreational areas.
 
 For domestic water supply, most sources such as lakes, springs, streams, and wells are generally safe, with high percentages of safe samples ranging from 91.7% to 99.9%. Nonetheless, occasional instances of unsafe samples from drinking water taps and wells underscore the importance of continuous monitoring and rigorous treatment processes to ensure the safety of domestic water supplies. Ensuring safe water for both recreational and domestic use is vital for preventing waterborne diseases and maintaining overall public health. Continuous efforts in monitoring, treatment, and management of water sources are essential to achieve this goal.
 
