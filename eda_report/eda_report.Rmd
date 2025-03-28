@@ -5,6 +5,9 @@ output:
     toc: true
     toc_float: true
     toc_depth: 3
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ------------------------------------------------------------------------
@@ -19,31 +22,64 @@ output:
 
 # Introduction:
 
-This analysis will look at water quality data from the City of Austin's Open Data Portal. It is collected to assess water quality conditions in the natural creeks, aquifers, and lakes in Austin and surrounding areas. Citizens have a right to know more about their water quality. Especially given that we, as students, use the same water everyday. Therefore, learning more about the water quality could give actionable insights into how to make better water decisions.
+This analysis will look at water quality data from the City of Austin's
+Open Data Portal. It is collected to assess water quality conditions in
+the natural creeks, aquifers, and lakes in Austin and surrounding areas.
+Citizens have a right to know more about their water quality. Especially
+given that we, as students, use the same water everyday. Therefore,
+learning more about the water quality could give actionable insights
+into how to make better water decisions.
 
-![A picture of Barton Springs, one of Austin's significant groundwater aquifers. Taken from <https://www.austintexas.org/listings/barton-springs-pool/4687/>.](https://assets.simpleviewinc.com/simpleview/image/upload/c_limit,q_75,w_1200/v1/crm/austin/011-421ace03bc29117_421acf68-dde1-a643-f8d4f8148337c3cd.jpg)
+![A picture of Barton Springs, one of Austin's significant groundwater
+aquifers. Taken from
+<https://www.austintexas.org/listings/barton-springs-pool/4687/>.](https://assets.simpleviewinc.com/simpleview/image/upload/c_limit,q_75,w_1200/v1/crm/austin/011-421ace03bc29117_421acf68-dde1-a643-f8d4f8148337c3cd.jpg)
 
-In an article from Inside Climate News, author Martha Pskowski writes that "there are 224 public water supply wells that are considered contaminated", according to the Texas Groundwater Protection Committee's annual report. For a growing state with less and less surface water sources, this issue is one that cannot be ignored if Texas hopes to continue to attract new residents. Water quality testing extends to agriculture as well. As the "largest consumer of groundwater statewide", the agricultural sector's handling of water quality impacts the diet of every Texan.
+In an article from Inside Climate News, author Martha Pskowski writes
+that "there are 224 public water supply wells that are considered
+contaminated", according to the Texas Groundwater Protection Committee's
+annual report. For a growing state with less and less surface water
+sources, this issue is one that cannot be ignored if Texas hopes to
+continue to attract new residents. Water quality testing extends to
+agriculture as well. As the "largest consumer of groundwater statewide",
+the agricultural sector's handling of water quality impacts the diet of
+every Texan.
 
-The data set to be analyzed can be found here: <https://data.austintexas.gov/Environment/Water-Quality-Sampling-Data/5tye-7ray/about_data>.
+The data set to be analyzed can be found here:
+<https://data.austintexas.gov/Environment/Water-Quality-Sampling-Data/5tye-7ray/about_data>.
 
-Each row is a water quality sample by parameter, date, and location in Austin, TX. We are primarily interested in variables watershed, site_type, and result to understand the distribution of water quality across Austin. The following research questions are investigated in this report:
+Each row is a water quality sample by parameter, date, and location in
+Austin, TX. We are primarily interested in variables watershed,
+site_type, and result to understand the distribution of water quality
+across Austin. The following research questions are investigated in this
+report:
 
--   **How do bacteria/pathogen concentrations vary by time of day and type of water source? (Nabil)**
+-   **How do bacteria/pathogen concentrations vary by time of day and
+    type of water source? (Nabil)**
 
--   **How do bacteria/pathogen concentrations vary by site type in terms of safeness? (Amanda)**
+-   **How do bacteria/pathogen concentrations vary by site type in terms
+    of safeness? (Amanda)**
 
--   Describe the data set(s) you have chosen and why you are interested in this data.
+-   Describe the data set(s) you have chosen and why you are interested
+    in this data.
 
--   Include a picture related to the topic of your project. Cite the source of the picture (it can be one of your own! For example, a pet you adopted at the Animal Center).
+-   Include a picture related to the topic of your project. Cite the
+    source of the picture (it can be one of your own! For example, a pet
+    you adopted at the Animal Center).
 
--   Cite a previous study or some news article that gives you some background about the topic/context around this data set. Describe how this citation ties to your project: Why is this topic important for you to investigate? What are your motivations?
+-   Cite a previous study or some news article that gives you some
+    background about the topic/context around this data set. Describe
+    how this citation ties to your project: Why is this topic important
+    for you to investigate? What are your motivations?
 
--   Include the link to your data set and quickly describe what information it contains: What does a unique row represent? What are the main variables of interests?
+-   Include the link to your data set and quickly describe what
+    information it contains: What does a unique row represent? What are
+    the main variables of interests?
 
--   Write a research question to guide your exploratory data analysis. If a team project, each member suggests 1 research question.
+-   Write a research question to guide your exploratory data analysis.
+    If a team project, each member suggests 1 research question.
 
--   Try to anticipate what you will learn by conducting this analysis: What trends or relationships do you expect?
+-   Try to anticipate what you will learn by conducting this analysis:
+    What trends or relationships do you expect?
 
 ------------------------------------------------------------------------
 
@@ -79,33 +115,62 @@ water_tidy <- water |>
 head(water_tidy)
 ```
 
-There are 1,475,965 rows and 24 columns in the original data set. Much of this data is unconcerned with dangerous chemicals or pathogens and thus we have limited the data set to bacteria/pathogen samples through the City of Austin open data portal since this has one of the most hazardous effects on health. The data set 'water' contains 34,893 rows and 24 columns.
+There are 1,475,965 rows and 24 columns in the original data set. Much
+of this data is unconcerned with dangerous chemicals or pathogens and
+thus we have limited the data set to bacteria/pathogen samples through
+the City of Austin open data portal since this has one of the most
+hazardous effects on health. The data set 'water' contains 34,893 rows
+and 24 columns.
 
-Additionally, the data was tidied/wrangled with the following changes or omissions. The resulting data set 'water_tidy' contains 32,758 rows and 15 columns.
+Additionally, the data was tidied/wrangled with the following changes or
+omissions. The resulting data set 'water_tidy' contains 32,758 rows and
+15 columns. This means that 2135 NA rows were dropped from the dataset.
+The sample_date variable was converted into two new columns for
+R-formatted date and year.
 
 1.  All column names were converted to lowercase.
 
-2.  Only 15 relevant columns out of 24 were selected for analysis (data_ref_no, watershed, site_type, site_name, sample_date, lat_dd_wgs84, lon_dd_wgs84, param_type, parameter, result, method, medium, unit).
+2.  Only 15 relevant columns out of 24 were selected for analysis
+    (data_ref_no, watershed, site_type, site_name, sample_date,
+    lat_dd_wgs84, lon_dd_wgs84, param_type, parameter, result, method,
+    medium, unit).
 
 3.  Any missing NA values within the selected columns were removed.
 
-4.  The parameter 'HETEROTROPHIC PLATE COUNT' was filtered out since there was only one observation.
+4.  The parameter 'HETEROTROPHIC PLATE COUNT' was filtered out since
+    there was only one observation.
 
-5.  Any observations with a latitude or longitude coordinate of 0° will be excluded, as these coordinates do not fall within the Austin area.
+5.  Any observations with a latitude or longitude coordinate of 0° will
+    be excluded, as these coordinates do not fall within the Austin
+    area.
 
--   Wrangle data and document any steps taken to get the data set in shape for data analysis.
+-   Wrangle data and document any steps taken to get the data set in
+    shape for data analysis.
 
--   Organize your data: for example, use single-word names for all variables, filter your data on some conditions, and create all new variables (e.g., transform dates to calculate a duration, regroup categories, ...) in this section.
+-   Organize your data: for example, use single-word names for all
+    variables, filter your data on some conditions, and create all new
+    variables (e.g., transform dates to calculate a duration, regroup
+    categories, ...) in this section.
 
--   Describe your data: How many rows/columns did you start with? How many rows/columns did you end up with? Any reason why you may not have the same amount of rows before/after wrangling?
+-   Describe your data: How many rows/columns did you start with? How
+    many rows/columns did you end up with? Any reason why you may not
+    have the same amount of rows before/after wrangling?
 
 -   Justify if your resulting dataset(s) is tidy.
 
--   If applicable: Handle missing values. Report the number of missing values for each variable. Are you keeping/dropping missing values in the data set? What impact would dropping missing values have on your results?
+-   If applicable: Handle missing values. Report the number of missing
+    values for each variable. Are you keeping/dropping missing values in
+    the data set? What impact would dropping missing values have on your
+    results?
 
--   If applicable: Include any steps to reshape your data set(s) if the data set is not tidy so that every observation has its own row and every variable its own column.
+-   If applicable: Include any steps to reshape your data set(s) if the
+    data set is not tidy so that every observation has its own row and
+    every variable its own column.
 
--   If applicable: Includes any steps to join several data sets and combine them in a single data set. Make sure to report how many observations/rows were dropped/added when joining the data sets and discuss any potential issues.
+-   If applicable: Includes any steps to join several data sets and
+    combine them in a single data set. Make sure to report how many
+    observations/rows were dropped/added when joining the data sets and
+    discuss any potential issues.
 
 ------------------------------------------------------------------------
 
@@ -113,7 +178,10 @@ Additionally, the data was tidied/wrangled with the following changes or omissio
 
 ## Bacteria/Pathogen Concentration Changes Over Time Per Source
 
-To begin to see the variations in bacteria/pathogen concentrations between ground and surface water concentrations, we must first investigate the distributions of each variable involved. We'll first look at the counts of the types of water sources.
+To begin to see the variations in bacteria/pathogen concentrations
+between ground and surface water concentrations, we must first
+investigate the distributions of each variable involved. We'll first
+look at the counts of the types of water sources.
 
 ```{r}
 water_tidy |>
@@ -132,7 +200,20 @@ water_tidy |> #Calculate summary statistics (counts) for water sources
   summarize(count = n())
 ```
 
-From Figure 1 and the summary statistics, the three largest sources are 1704 storm water sources, 9161 ground water sources, and 22531 surface water sources. Moving forward, storm water sources will not be included for analysis since they have wildly different bacteria concentrations and cannot be controlled by community intervention. Next, we'll look at the distribution of bacteria concentration across all sources. This will include the following bacteria: total coliform bacteria, fecal streptococci, fecal coliform bacteria, E coli bacteria, and enterococcus. Total coliform bacteria is filtered out since it only accounts for a single row and happened only one time. The EPA recommends that for a domestic water supply that is to be treated, concentrations for the previously mentioned bacteria should be less than 2000 colonies per 100 milliliters. Therefore, the visualization only looks at bacteria concentrations in excess of 2000 colonies/100 mL.
+From Figure 1 and the summary statistics, the three largest sources are
+1704 storm water sources, 9161 ground water sources, and 22531 surface
+water sources. Moving forward, storm water sources will not be included
+for analysis since they have wildly different bacteria concentrations
+and cannot be controlled by community intervention. Next, we'll look at
+the distribution of bacteria concentration across all sources. This will
+include the following bacteria: total coliform bacteria, fecal
+streptococci, fecal coliform bacteria, E coli bacteria, and
+enterococcus. Total coliform bacteria is filtered out since it only
+accounts for a single row and happened only one time. The EPA recommends
+that for a domestic water supply that is to be treated, concentrations
+for the previously mentioned bacteria should be less than 2000 colonies
+per 100 milliliters. Therefore, the visualization only looks at bacteria
+concentrations in excess of 2000 colonies/100 mL.
 
 ```{r}
 water_tidy |>
@@ -158,9 +239,17 @@ water_tidy |> #All units are colonies/100 mL
             IQR_concentration = IQR(result))
 ```
 
-Figure 2 and the summary statistics show us large variations in the dangerous concentrations of bacteria in water sources in Austin. Mean concentrations of fecal streptococci are above the safe limit at 6072.42 colonies/100 mL with total coliform bacteria concentrations following close behind at 1299.784 colonies/100 mL. However, the standard deviation for each bacteria concentration is on the order of thousands and tens of thousands, implying that there are still many locations of dangerously high bacteria concentration.
+Figure 2 and the summary statistics show us large variations in the
+dangerous concentrations of bacteria in water sources in Austin. Mean
+concentrations of fecal streptococci are above the safe limit at 6072.42
+colonies/100 mL with total coliform bacteria concentrations following
+close behind at 1299.784 colonies/100 mL. However, the standard
+deviation for each bacteria concentration is on the order of thousands
+and tens of thousands, implying that there are still many locations of
+dangerously high bacteria concentration.
 
-Finally, we can look at the changing concentrations of bacteria over time in both surface and ground water sources.
+Finally, we can look at the changing concentrations of bacteria over
+time in both surface and ground water sources.
 
 ```{r}
 water_tidy |>
@@ -187,11 +276,21 @@ water_tidy |> #Mean concentrations in colonies/100 mL, ground water averages
   summarize(mean_concentration = mean(result))
 ```
 
-Surface water concentrations are much more frequently reported than groundwater concentrations. Groundwater concentrations have stayed approximately the same since 1990. Surface water concentrations were extremely high in the 20th century (an average of 23713.57 colonies/100 mL in 1994) and have consistently improved in the 21st century (an average of 212.04 colonies/100 mL in 2010). However, there appears to be a slight uptick in concentration in recent years as shown by the right tail in Figure 3 of surface water concentrations.
+Surface water concentrations are much more frequently reported than
+groundwater concentrations. Groundwater concentrations have stayed
+approximately the same since 1990. Surface water concentrations were
+extremely high in the 20th century (an average of 23713.57 colonies/100
+mL in 1994) and have consistently improved in the 21st century (an
+average of 212.04 colonies/100 mL in 2010). However, there appears to be
+a slight uptick in concentration in recent years as shown by the right
+tail in Figure 3 of surface water concentrations.
 
 ## Time of Day Bacteria/Pathogen Samples Are Taken
 
-In order to see what time of day bacteria samples are taken at, we must first look at the distribution of the time periods the data was acquired. We will find the number of samples collected per year to see this distribution.
+In order to see what time of day bacteria samples are taken at, we must
+first look at the distribution of the time periods the data was
+acquired. We will find the number of samples collected per year to see
+this distribution.
 
 ```{r}
 water_tidy |>
@@ -211,9 +310,13 @@ water_tidy |> #Count number of samples collected per year
   summarize(count = n())
 ```
 
-We see an approximately unimodal distribution where more samples were taken in the 90's and decreased in the 2000's. The most samples were taken in 2009 at 1857 samples. The least samples were taken in 1987 at 10 samples.
+We see an approximately unimodal distribution where more samples were
+taken in the 90's and decreased in the 2000's. The most samples were
+taken in 2009 at 1857 samples. The least samples were taken in 1987 at
+10 samples.
 
-Next, we look at the distribution of samples taken per bacteria type. We can make a barplot for the distribution and compare across the bars.
+Next, we look at the distribution of samples taken per bacteria type. We
+can make a barplot for the distribution and compare across the bars.
 
 ```{r}
 water_tidy |>
@@ -235,7 +338,9 @@ water_tidy |>
             percent = 100*n()/nrow(water_tidy))
 ```
 
-The bacteria that was found the most is E coli in 14852 samples while the least is enterococcus in only 167 samples. Next, we can find the hour at which the samples were taken for each type of bacteria.
+The bacteria that was found the most is E coli in 14852 samples while
+the least is enterococcus in only 167 samples. Next, we can find the
+hour at which the samples were taken for each type of bacteria.
 
 ```{r}
 water_tidy |>
@@ -256,11 +361,16 @@ water_tidy |> #Find number of samples taken per hour
   summarize(count = n())
 ```
 
-For fecal streptococci, fecal coliform bacteria, and E coli, midnight is the most frequent time for sample collection (15988 samples). However, this is likely the default time entered for when the exact collection time is unknown. After the midnight peak, the next most frequent time is around 11 AM and noon (3165 samples).
+For fecal streptococci, fecal coliform bacteria, and E coli, midnight is
+the most frequent time for sample collection (15988 samples). However,
+this is likely the default time entered for when the exact collection
+time is unknown. After the midnight peak, the next most frequent time is
+around 11 AM and noon (3165 samples).
 
 ## Bacteria/Pathogen Concentrations by Location
 
-First, we will examine the distribution of bacteria/pathogen concentrations across Austin, Texas.
+First, we will examine the distribution of bacteria/pathogen
+concentrations across Austin, Texas.
 
 ```{r}
 # Exploring all bacteria/pathogen concentrations in relation to location of samples
@@ -293,13 +403,28 @@ water_tidy |>
   theme_bw()
 ```
 
-From Figures 7 and 8, there are higher bacteria/pathogen concentrations in the central areas of Austin compared to the outer regions. This pattern suggests several potential factors. The central part of Austin contains a higher population density and increased human activity, which can contribute to the proliferation of bacteria and pathogens. Additionally, urban environments often have more sources of pollution and waste, which can create favorable conditions for microbial growth. The outer areas, being less densely populated and more suburban or rural, may have fewer such sources, leading to lower bacteria/pathogen concentrations.
+From Figures 7 and 8, there are higher bacteria/pathogen concentrations
+in the central areas of Austin compared to the outer regions. This
+pattern suggests several potential factors. The central part of Austin
+contains a higher population density and increased human activity, which
+can contribute to the proliferation of bacteria and pathogens.
+Additionally, urban environments often have more sources of pollution
+and waste, which can create favorable conditions for microbial growth.
+The outer areas, being less densely populated and more suburban or
+rural, may have fewer such sources, leading to lower bacteria/pathogen
+concentrations.
 
 ## Safe Bacteria/Pathogen Concentrations Levels by Site Type
 
-The US EPA sets specific recommendations for safe bacteria/pathogen concentrations in various water types to protect public health. These standards help ensure that water used for various purposes, from recreation to consumption, remains safe and free from harmful levels of pathogens. We will focus on three water types: recreational, treatment, and drinking.
+The US EPA sets specific recommendations for safe bacteria/pathogen
+concentrations in various water types to protect public health. These
+standards help ensure that water used for various purposes, from
+recreation to consumption, remains safe and free from harmful levels of
+pathogens. We will focus on three water types: recreational, treatment,
+and drinking.
 
-Figure 9 is a distribution of bacteria/pathogen concentrations by site types in Austin, Texas.
+Figure 9 is a distribution of bacteria/pathogen concentrations by site
+types in Austin, Texas.
 
 ```{r}
 # Identifying the different site types
@@ -322,7 +447,12 @@ water_tidy |>
 
 ### Recreational Water
 
-For recreational water, we will look at site types lakes, springs, and streams because these waters are typically considered for recreational activities such as swimming, boating, and fishing. We will compare on E. coli and enterococcus concentrations with fecal coliform bacteria concentrations because the EPA emphasizes the former as better indicators.
+For recreational water, we will look at site types lakes, springs, and
+streams because these waters are typically considered for recreational
+activities such as swimming, boating, and fishing. We will compare on E.
+coli and enterococcus concentrations with fecal coliform bacteria
+concentrations because the EPA emphasizes the former as better
+indicators.
 
 ```{r}
 # Frequency of recreational water site types
@@ -332,11 +462,25 @@ water_tidy |>
   summarize(count = n())
 ```
 
-The EPA's current standards in recreational water are a geometric mean of **no more than 126 colony-forming units (CFU) per 100 mL for E. coli** and a geometric mean of **no more than 35 CFU per 100 mL for enterococcus**. The EPA previously recommended a geometric mean of **no more than 200 CFU per 100 mL for fecal coliform bacteria**. In general, these thresholds are particularly significant for water used in activities where direct contact with skin is common. Maintaining below these amounts ensure that the water is safe for recreational use, reducing the risk of infections and other health issues associated with exposure to contaminated water.
+The EPA's current standards in recreational water are a geometric mean
+of **no more than 126 colony-forming units (CFU) per 100 mL for E.
+coli** and a geometric mean of **no more than 35 CFU per 100 mL for
+enterococcus**. The EPA previously recommended a geometric mean of **no
+more than 200 CFU per 100 mL for fecal coliform bacteria**. In general,
+these thresholds are particularly significant for water used in
+activities where direct contact with skin is common. Maintaining below
+these amounts ensure that the water is safe for recreational use,
+reducing the risk of infections and other health issues associated with
+exposure to contaminated water.
 
 Note: Colonies/per 100 mL is the same as CFU/100 mL.
 
-Information on safe concentrations of E. coli and enterococcus in recreational water can be found here: <https://www.epa.gov/sites/default/files/2015-10/documents/rec-factsheet-2012.pdf>. Information on safe concentrations of fecal coliform bacteria in recreational waters can be found here: <https://www.knowyourh2o.com/outdoor-4/fecal-coliform-bacteria-in-water>/
+Information on safe concentrations of E. coli and enterococcus in
+recreational water can be found here:
+<https://www.epa.gov/sites/default/files/2015-10/documents/rec-factsheet-2012.pdf>.
+Information on safe concentrations of fecal coliform bacteria in
+recreational waters can be found here:
+<https://www.knowyourh2o.com/outdoor-4/fecal-coliform-bacteria-in-water>/
 
 ```{r}
 # Comparing all three parameters in terms of safeness in recreational water
@@ -381,13 +525,37 @@ water_tidy |>
          proportion = count/parameter_count)
 ```
 
-For E. coli bacteria, 71.1% of the samples (9771 out of 13739) are considered safe for recreational use, and 28.9% of the samples (3968 out of 13739) are considered unsafe for recreational use. For enterococcus, only 5.3% of the samples (2 out of 38) are considered safe for recreational use, and 94.7% of the samples (36 out of 38) are considered unsafe for recreational use. For fecal coliform bacteria, 76.0% of the samples (10194 out of 13408) are considered safe for recreational use, and 24.0% of the samples (3214 out of 13408) are considered unsafe for recreational use. Therefore, the majority of samples for E. coli and fecal coliform bacteria are within safe levels for recreational water sites. However, a significant portion of enterococcus samples are above safe levels, indicating potential health risks for recreational activities in those waters.
+For E. coli bacteria, 71.1% of the samples (9771 out of 13739) are
+considered safe for recreational use, and 28.9% of the samples (3968 out
+of 13739) are considered unsafe for recreational use. For enterococcus,
+only 5.3% of the samples (2 out of 38) are considered safe for
+recreational use, and 94.7% of the samples (36 out of 38) are considered
+unsafe for recreational use. For fecal coliform bacteria, 76.0% of the
+samples (10194 out of 13408) are considered safe for recreational use,
+and 24.0% of the samples (3214 out of 13408) are considered unsafe for
+recreational use. Therefore, the majority of samples for E. coli and
+fecal coliform bacteria are within safe levels for recreational water
+sites. However, a significant portion of enterococcus samples are above
+safe levels, indicating potential health risks for recreational
+activities in those waters.
 
 ### Domestic Water Supply
 
-Domestic water supply refers to the provision of water for household uses such as drinking, cooking, cleaning, and bathing. This water typically comes from various sources, including wells, springs, lakes, and streams. Before it reaches homes, the water undergoes rigorous treatment processes to ensure it meets safety standards. These processes include filtration, sedimentation, and disinfection to remove contaminants and pathogens. Ensuring a reliable and safe domestic water supply is crucial for public health and well-being, as it prevents waterborne diseases and supports daily life activities. Proper management and treatment of water sources are essential to maintain the quality and availability of this vital resource.
+Domestic water supply refers to the provision of water for household
+uses such as drinking, cooking, cleaning, and bathing. This water
+typically comes from various sources, including wells, springs, lakes,
+and streams. Before it reaches homes, the water undergoes rigorous
+treatment processes to ensure it meets safety standards. These processes
+include filtration, sedimentation, and disinfection to remove
+contaminants and pathogens. Ensuring a reliable and safe domestic water
+supply is crucial for public health and well-being, as it prevents
+waterborne diseases and supports daily life activities. Proper
+management and treatment of water sources are essential to maintain the
+quality and availability of this vital resource.
 
-For domestic water supply, we will look at site types lakes, springs, streams, drinking water tap, and wells. The EPA's current standard in domestic water supply is **fewer than 2000 colonies/100 mL**.
+For domestic water supply, we will look at site types lakes, springs,
+streams, drinking water tap, and wells. The EPA's current standard in
+domestic water supply is **fewer than 2000 colonies/100 mL**.
 
 ```{r}
 # Frequency of domestic water supply site types
@@ -397,7 +565,9 @@ water_tidy |>
   summarize(count = n())
 ```
 
-Information on safe concentrations of fecal coliform bacteria in recreational waters can be found here: <https://www.knowyourh2o.com/outdoor-4/fecal-coliform-bacteria-in-water>/
+Information on safe concentrations of fecal coliform bacteria in
+recreational waters can be found here:
+<https://www.knowyourh2o.com/outdoor-4/fecal-coliform-bacteria-in-water>/
 
 ```{r}
 # Comparing all fecal coliform bacteria concentration levels for domestic water supply
@@ -430,13 +600,32 @@ water_tidy |>
          proportion = count/site_type_count)
 ```
 
-For lakes, 95.4% of the samples (1092 out of 1145) are considered safe for domestic water supply, and 4.6% of the samples (53 out of 1145) are considered unsafe for domestic water supply. For springs, 99.9% of the samples (3469 out of 3472) are considered safe for domestic water supply, 0.1% of the samples (3 out of 3472) are considered unsafe for domestic water supply. For streams, 91.7% of the samples (8046 out of 8771) are considered safe for domestic water supply, 8.3% of the samples (725 out of 8771) are considered unsafe for domestic water supply. For wells, 98.0% of the samples (50 out of 51) are considered safe for domestic water supply, 2.0% of the samples (1 out of 51) are considered unsafe for domestic water supply. Therefore, the majority of samples from lakes, springs, streams, and wells are within safe levels for domestic water supply. This indicates that these sources are generally reliable for providing safe water for household use after appropriate treatment.
+For lakes, 95.4% of the samples (1092 out of 1145) are considered safe
+for domestic water supply, and 4.6% of the samples (53 out of 1145) are
+considered unsafe for domestic water supply. For springs, 99.9% of the
+samples (3469 out of 3472) are considered safe for domestic water
+supply, 0.1% of the samples (3 out of 3472) are considered unsafe for
+domestic water supply. For streams, 91.7% of the samples (8046 out of
+8771) are considered safe for domestic water supply, 8.3% of the samples
+(725 out of 8771) are considered unsafe for domestic water supply. For
+wells, 98.0% of the samples (50 out of 51) are considered safe for
+domestic water supply, 2.0% of the samples (1 out of 51) are considered
+unsafe for domestic water supply. Therefore, the majority of samples
+from lakes, springs, streams, and wells are within safe levels for
+domestic water supply. This indicates that these sources are generally
+reliable for providing safe water for household use after appropriate
+treatment.
 
 ### Drinking Water
 
-For drinking water, we will look at site types drinking water tap and well because these are typically considered direct sources of drinking water. The EPA's current standard in drinking water is the **absence of E. coli**.
+For drinking water, we will look at site types drinking water tap and
+well because these are typically considered direct sources of drinking
+water. The EPA's current standard in drinking water is the **absence of
+E. coli**.
 
-Information on safe concentrations of E. coli bacteria in recreational waters can be found here: <https://www.knowyourh2o.com/outdoor-4/fecal-coliform-bacteria-in-water>/
+Information on safe concentrations of E. coli bacteria in recreational
+waters can be found here:
+<https://www.knowyourh2o.com/outdoor-4/fecal-coliform-bacteria-in-water>/
 
 ```{r}
 # Frequency of drinking water site types
@@ -474,39 +663,98 @@ water_tidy |>
   summarize(count = n(), .groups = 'drop')
 ```
 
-All drinking water sites have unsafe E. coli concentrations (greater than 0 CFU/100 mL or 0 MPN/100ML). Therefore, it would be hazardous to drink from these direct sources of water.
+All drinking water sites have unsafe E. coli concentrations (greater
+than 0 CFU/100 mL or 0 MPN/100ML). Therefore, it would be hazardous to
+drink from these direct sources of water.
 
 -   Explore your data with visualizations and summary statistics.
 
--   Make a visualization representing the distribution of each variable included in the research question and report the appropriate summary statistics. If a team project, each member makes a visualization for each variable included in their research question. If some variables are in common across the team members, then try a different approach (there are so many ways to make visualizations in ggplot).
+-   Make a visualization representing the distribution of each variable
+    included in the research question and report the appropriate summary
+    statistics. If a team project, each member makes a visualization for
+    each variable included in their research question. If some variables
+    are in common across the team members, then try a different approach
+    (there are so many ways to make visualizations in ggplot).
 
--   Make at least 2 visualizations representing relationships between 2 variables reporting the appropriate summary statistics. You could also do some visualizations with 3 variables if you'd like. If a team project, each member creates 2 multivariate visualizations, with the appropriate statistics.
+-   Make at least 2 visualizations representing relationships between 2
+    variables reporting the appropriate summary statistics. You could
+    also do some visualizations with 3 variables if you'd like. If a
+    team project, each member creates 2 multivariate visualizations,
+    with the appropriate statistics.
 
--   Include appropriate titles and labels for each visualization and make sure summary statistics are reported with appropriate units. Note: It might be a good idea to number your visualizations to reference them in the Discussion.
+-   Include appropriate titles and labels for each visualization and
+    make sure summary statistics are reported with appropriate units.
+    Note: It might be a good idea to number your visualizations to
+    reference them in the Discussion.
 
--   Write sentences interpreting each visualization with any trend/relationships and referring to appropriate summary statistics.
+-   Write sentences interpreting each visualization with any
+    trend/relationships and referring to appropriate summary statistics.
 
 ------------------------------------------------------------------------
 
 # Discussion
 
-After conducting this analysis, we have a better picture of bacteria/pathogen concentrations in Austin. We can now see the changes across day and water source. To begin with, Figure 1 tells us that the majority of water sources are surface water sources (22531 sources). This tells us that our focus should be on testing surface water sources since they affect the most people. This is supported by Figure 3 where we see that almost all sampling has historically been done on surface water sources. However, Figures 3 and 4 also indicate that testing efforts have waned in the 21st century. While this is likely partly due to improved experimental analysis methods, it still represents a danger to the community since contamination could be missed with less testing.
+After conducting this analysis, we have a better picture of
+bacteria/pathogen concentrations in Austin. We can now see the changes
+across day and water source. To begin with, Figure 1 tells us that the
+majority of water sources are surface water sources (22531 sources).
+This tells us that our focus should be on testing surface water sources
+since they affect the most people. This is supported by Figure 3 where
+we see that almost all sampling has historically been done on surface
+water sources. However, Figures 3 and 4 also indicate that testing
+efforts have waned in the 21st century. While this is likely partly due
+to improved experimental analysis methods, it still represents a danger
+to the community since contamination could be missed with less testing.
 
-To see the variations in a day, we can look to Figures 5 and 6. E coli bacteria are highly present in the samples, representing 14852 samples. Samples are most often taken in the late morning, between 11 AM and noon (ignoring the midnight category). The trend makes sense given that these times are during the workday and when most people are active. However, it is important to note that this is the warmest part of the day. Sampling methods will be affected by the temperature and properties of the water. Further research needs to be done on how this trend affects the measured bacteria concentration. The trends approximately agreed with expected findings of most frequent sampling happening during the day. We also did expect highest bacteria concentrations to appear in water sources closest to the outside environment. This was proven by the data and the dominance of surface water sources.
+To see the variations in a day, we can look to Figures 5 and 6. E coli
+bacteria are highly present in the samples, representing 14852 samples.
+Samples are most often taken in the late morning, between 11 AM and noon
+(ignoring the midnight category). The trend makes sense given that these
+times are during the workday and when most people are active. However,
+it is important to note that this is the warmest part of the day.
+Sampling methods will be affected by the temperature and properties of
+the water. Further research needs to be done on how this trend affects
+the measured bacteria concentration. The trends approximately agreed
+with expected findings of most frequent sampling happening during the
+day. We also did expect highest bacteria concentrations to appear in
+water sources closest to the outside environment. This was proven by the
+data and the dominance of surface water sources.
 
-We can draw several important conclusions regarding the safeness levels of various water sources for both recreational and domestic use from Figures 10-12. For recreational water sites, the majority of samples for E. coli and fecal coliform bacteria are within safe levels, with 71.1% and 76.0% of samples respectively being safe. However, enterococcus contamination poses a significant risk, with only 5.3% of samples being safe. This highlights the need for improved water quality measures in recreational areas.
+We can draw several important conclusions regarding the safeness levels
+of various water sources for both recreational and domestic use from
+Figures 10-12. For recreational water sites, the majority of samples for
+E. coli and fecal coliform bacteria are within safe levels, with 71.1%
+and 76.0% of samples respectively being safe. However, enterococcus
+contamination poses a significant risk, with only 5.3% of samples being
+safe. This highlights the need for improved water quality measures in
+recreational areas.
 
-For domestic water supply, most sources such as lakes, springs, streams, and wells are generally safe, with high percentages of safe samples ranging from 91.7% to 99.9%. Nonetheless, occasional instances of unsafe samples from drinking water taps and wells underscore the importance of continuous monitoring and rigorous treatment processes to ensure the safety of domestic water supplies. Ensuring safe water for both recreational and domestic use is vital for preventing waterborne diseases and maintaining overall public health. Continuous efforts in monitoring, treatment, and management of water sources are essential to achieve this goal.
+For domestic water supply, most sources such as lakes, springs, streams,
+and wells are generally safe, with high percentages of safe samples
+ranging from 91.7% to 99.9%. Nonetheless, occasional instances of unsafe
+samples from drinking water taps and wells underscore the importance of
+continuous monitoring and rigorous treatment processes to ensure the
+safety of domestic water supplies. Ensuring safe water for both
+recreational and domestic use is vital for preventing waterborne
+diseases and maintaining overall public health. Continuous efforts in
+monitoring, treatment, and management of water sources are essential to
+achieve this goal.
 
 -   Put it all together, what did you learn from your data?
 
--   Answer your research question(s) in context, citing visualizations and summary statistics.
+-   Answer your research question(s) in context, citing visualizations
+    and summary statistics.
 
--   Did the data match what you expected? Anything surprising? Anything you are curious about?
+-   Did the data match what you expected? Anything surprising? Anything
+    you are curious about?
 
--   If you were going to share your findings with the City of Austin (and you might actually do that!), what would be the main takeaway from your exploratory data analysis?
+-   If you were going to share your findings with the City of Austin
+    (and you might actually do that!), what would be the main takeaway
+    from your exploratory data analysis?
 
--   Anything you would like to share about the state of the data set (e.g., inconsistency in coding for categories, typos, missing values...)?
+-   Anything you would like to share about the state of the data set
+    (e.g., inconsistency in coding for categories, typos, missing
+    values...)?
 
 ------------------------------------------------------------------------
 
@@ -514,37 +762,58 @@ For domestic water supply, most sources such as lakes, springs, streams, and wel
 
 ## Reflection
 
-From the process, we have learned the importance of meticulous data analysis and the need for clear, concise communication. Interpreting data accurately is essential to draw meaningful conclusions and provide actionable insights. Moreover, this project underscored the significance of continuous monitoring and rigorous treatment processes to ensure water safety. It also highlighted the critical role of adhering to regulatory standards to protect public health.
+From the process, we have learned the importance of meticulous data
+analysis and the need for clear, concise communication. Interpreting
+data accurately is essential to draw meaningful conclusions and provide
+actionable insights. Moreover, this project underscored the significance
+of continuous monitoring and rigorous treatment processes to ensure
+water safety. It also highlighted the critical role of adhering to
+regulatory standards to protect public health.
 
-Overall, this project has reinforced the value of detailed analysis, effective data interpretation, and the importance of maintaining high standards in water quality management.
+The exploratory data analysis also revealed the amount of options
+available to tell the story of the data. Different visualizations offer
+a unique perspective on the dataset, giving us endless options to work
+with. However, we also learned that data is never perfect nor is it
+recorded perfectly. A large part of the work went into wrangling the
+dataset.
+
+Overall, this project has reinforced the value of detailed analysis,
+effective data interpretation, and the importance of maintaining high
+standards in water quality management.
 
 ### Challenges
 
-The most challenging aspect of this project was ensuring the accurate interpretation and integration of the data set. Understanding the specific safety standards and guidelines for different types of water required a thorough grasp of regulations/standards and their practical implications.
+The most challenging aspect of this project was ensuring the accurate
+interpretation and integration of the data set. Understanding the
+specific safety standards and guidelines for different types of water
+required a thorough grasp of regulations/standards and their practical
+implications.
+
+Additionally, wrangling the data presented an initial hurdle to our
+analysis. The original dataset contained too many rows and needed to be
+filtered. Even after filtering, the dataset was not tidy and needed to
+have columns renamed, rows dropped, and new columns made.
 
 ### Contributions
 
-Amanda:
--   Method
--   Individual research question
--   Individual results 
--   Individual discussion 
--   Individual reflection 
--   Acknowledgments 
--   References
+Amanda: - Method - Individual research question - Individual results -
+Individual discussion - Individual reflection - Acknowledgments -
+References
 
-Nabil:
--   Introduction
--   Method
--   Individual research question
--   Individual results
--   Individual discussion
--   Individual reflection
-
+Nabil: - Introduction - Method - Individual research question -
+Individual results - Individual discussion - Individual reflection
 
 ## Acknowledgements
 
-We would like to extend our sincere gratitude to the City of Austin for providing access to their Open Data Portal. This invaluable resource has been instrumental in our analysis, allowing us to access comprehensive and up-to-date data on water quality and other critical environmental metrics. The transparency and accessibility of this data empower researchers, policymakers, and the community to make informed decisions and take proactive measures to ensure public health and safety. Thank you, City of Austin, for your commitment to open data and for supporting initiatives that enhance the well-being of our community.
+We would like to extend our sincere gratitude to the City of Austin for
+providing access to their Open Data Portal. This invaluable resource has
+been instrumental in our analysis, allowing us to access comprehensive
+and up-to-date data on water quality and other critical environmental
+metrics. The transparency and accessibility of this data empower
+researchers, policymakers, and the community to make informed decisions
+and take proactive measures to ensure public health and safety. Thank
+you, City of Austin, for your commitment to open data and for supporting
+initiatives that enhance the well-being of our community.
 
 ## References
 
@@ -568,16 +837,26 @@ We would like to extend our sincere gratitude to the City of Austin for providin
 
 -   What have you learned from the process itself?
 
--   Include acknowledgements for any help received: who helped you with the project? Thank TAs, instructors, data owners, external resources... If a team project, use this section to report the contribution of each member: who did contribute to which part of the report).
+-   Include acknowledgements for any help received: who helped you with
+    the project? Thank TAs, instructors, data owners, external
+    resources... If a team project, use this section to report the
+    contribution of each member: who did contribute to which part of the
+    report).
 
--   Include references: again, add the link(s) of the dataset(s), the link for the citation of a study/article for the background context, the link to a picture (if available), and any external resources.
+-   Include references: again, add the link(s) of the dataset(s), the
+    link for the citation of a study/article for the background context,
+    the link to a picture (if available), and any external resources.
 
 ------------------------------------------------------------------------
 
 # Formatting
 
--   Create the report using R Markdown, with headers for each section, and comments of the R code.
+-   Create the report using R Markdown, with headers for each section,
+    and comments of the R code.
 
--   The final report should be at least 5 pages but no more than 20 pages (the number of pages can vary greatly depending on the cleaning process though). It is extremely important that you select pages to corresponding sections when submitting on Gradescope.
+-   The final report should be at least 5 pages but no more than 20
+    pages (the number of pages can vary greatly depending on the
+    cleaning process though). It is extremely important that you select
+    pages to corresponding sections when submitting on Gradescope.
 
 -   If a team project, identify all team members on the submission.
