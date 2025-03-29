@@ -68,6 +68,16 @@ following research questions are investigated in this report:
 -   **How do bacteria/pathogen concentrations vary by site type in terms
     of safeness? (Amanda)**
 
+    -   It is hypothesized that bacteria/pathogen concentrations will
+        more densely populated towards the city's center in comparison
+        to the outer regions. This is because urban areas, with higher
+        population densities and more human activities, are more likely
+        to contribute more to water contamination. Factors such as urban
+        runoff, sewage overflows, and industrial discharges can
+        significantly impact water quality in these areas. Additionally,
+        a majority of water samples will be measured as safe for human
+        interaction.
+
 ------------------------------------------------------------------------
 
 # Method
@@ -383,7 +393,9 @@ concentrations in various water types to protect public health. These
 standards help ensure that water used for various purposes, from
 recreation to consumption, remains safe and free from harmful levels of
 pathogens. We will focus on three water types: recreational, treatment,
-and drinking.
+and drinking. Furthermore, we will look at sample counts and median
+results for three different groups of water types: recreational water,
+domestic water supply, and drinking water.
 
 Figure 9 is a distribution of bacteria/pathogen concentrations by site
 types in Austin, Texas.
@@ -421,7 +433,7 @@ indicators.
 water_tidy |>
   filter(site_type %in% c('Lake', 'Spring', 'Stream')) |>
   group_by(site_type) |>
-  summarize(count = n())
+  summarize(sample_count = n())
 ```
 
 The EPA's current standards in recreational water are a geometric mean
@@ -481,10 +493,13 @@ water_tidy |>
     parameter == "FECAL COLIFORM BACTERIA" & result <= 200 ~ T,
     parameter == "FECAL COLIFORM BACTERIA" & result > 200 ~ F)) |>
   group_by(parameter, safeness) |>
-  summarize(count = n(), .groups = 'drop') |>
+  summarize(sample_count = n(), 
+            median_result = median(result),
+            iqr_result = IQR(result),
+            .groups = 'drop') |>
   group_by(parameter) |>
-  mutate(parameter_count = sum(count),
-         proportion = count/parameter_count)
+  mutate(parameter_count = sum(sample_count),
+         proportion = sample_count/parameter_count)
 ```
 
 For E. coli bacteria, 71.1% of the samples (9771 out of 13739) are
@@ -497,9 +512,22 @@ samples (10194 out of 13408) are considered safe for recreational use,
 and 24.0% of the samples (3214 out of 13408) are considered unsafe for
 recreational use. Therefore, the majority of samples for E. coli and
 fecal coliform bacteria are within safe levels for recreational water
-sites. However, a significant portion of enterococcus samples are above
-safe levels, indicating potential health risks for recreational
-activities in those waters.
+sites. A significant portion of enterococcus samples are above safe
+levels, indicating potential health risks for recreational activities in
+those waters. However, it is difficult to analyze enterococcus samples
+because there are only 38 total samples.
+
+Safe E. coli bacteria samples (the majority) have a median result of
+32.5177 CFU/100 mL, which is significantly less than 126 CFU/100 mL,
+suggesting that most of the samples are within the safeness threshold.
+Safe fecal coliform bacteria samples (the majority) have a median result
+44.9287 CFU/100 mL, which is significantly less than 200 CFU/100 mL,
+suggesting that most of the samples are within the safeness threshold.
+However, the median result for unsafe E. coli bacteria samples is 387
+CFU/100 mL, and the median result for unsafe fecal coliform bacteria
+samples is 620 CFU/100 mL. These values are significantly higher than
+the safeness threshold. Entercoccus median results are disgarded because
+there are not enough samples to conduct a proper analysis.
 
 ### Domestic Water Supply
 
@@ -524,7 +552,7 @@ domestic water supply is **fewer than 2000 colonies/100 mL**.
 water_tidy |>
   filter(site_type %in% c('Lake', 'Spring', 'Stream', 'Well', 'Drinking Water Tap')) |>
   group_by(site_type) |>
-  summarize(count = n())
+  summarize(sample_count = n())
 ```
 
 Information on safe concentrations of fecal coliform bacteria in
@@ -556,10 +584,13 @@ water_tidy |>
   filter(parameter == "FECAL COLIFORM BACTERIA") |>
   mutate(safeness = ifelse(result < 2000, T, F)) |>
   group_by(site_type, safeness) |>
-  summarize(count = n(), .groups = 'drop') |>
+  summarize(sample_count = n(), 
+            median_result = median(result),
+            iqr_result = IQR(result),
+            .groups = 'drop') |>
   group_by(site_type) |>
-  mutate(site_type_count = sum(count),
-         proportion = count/site_type_count)
+  mutate(site_type_count = sum(sample_count),
+         proportion = sample_count/site_type_count)
 ```
 
 For lakes, 95.4% of the samples (1092 out of 1145) are considered safe
@@ -577,6 +608,19 @@ from lakes, springs, streams, and wells are within safe levels for
 domestic water supply. This indicates that these sources are generally
 reliable for providing safe water for household use after appropriate
 treatment.
+
+The median safe result values for all site types, which consists of the
+majority of samples for each site type, are significantly fewer than
+2000 CFU/100 mL. The median result for lakes is 60 CFU/100 mL, the
+median result for springs is 13 CFU/100 mL, the median result for
+streams is 59 CFU/100 mL, and the median result for wells is 2 CFU/100
+mL. The median unsafe result for wells, which is 2100 CFU/100 mL, is
+slightly above the safeness threshold and is the lowest of the four
+water site, but this is based only on one sample. This suggests the need
+for continuous monitoring and rigorous treatment processes to ensure
+safety. Streams have the highest median result of 6820 CFU/100 mL among
+unsafe samples, suggesting they are the least suitable option for
+domestic water supply.
 
 ### Drinking Water
 
@@ -622,7 +666,10 @@ water_tidy |>
   filter(site_type %in% c('Drinking Water Tap', 'Well')) |>
   mutate(safeness = ifelse(result == 0, T, F)) |>
   group_by(site_type, safeness) |>
-  summarize(count = n(), .groups = 'drop')
+  summarize(sample_count = n(), 
+            median_result = median(result),
+            iqr_result = IQR(result),
+            .groups = 'drop')
 ```
 
 All drinking water sites have unsafe E. coli concentrations (greater
@@ -663,14 +710,15 @@ We can draw several important conclusions regarding the safeness levels
 of various water sources for both recreational and domestic use from
 Figures 10-12. For recreational water sites, the majority of samples for
 E. coli and fecal coliform bacteria are within safe levels, with 71.1%
-and 76.0% of samples respectively being safe. However, enterococcus
-contamination poses a significant risk, with only 5.3% of samples being
-safe. This highlights the need for improved water quality measures in
-recreational areas.
+and 76.0% of samples respectively being safe. Enterococcus contamination
+poses a significant risk, with only 5.3% of samples being safe. However,
+there are not enough enterococcus samples (only 38) to make a reasonable
+conclusion. Nonetheless, this highlights the need for improved water
+quality measures in recreational areas.
 
 For domestic water supply, most sources such as lakes, springs, streams,
 and wells are generally safe, with high percentages of safe samples
-ranging from 91.7% to 99.9%. Nonetheless, occasional instances of unsafe
+ranging from 91.7% to 99.9%. However, occasional instances of unsafe
 samples from drinking water taps and wells underscore the importance of
 continuous monitoring and rigorous treatment processes to ensure the
 safety of domestic water supplies. Ensuring safe water for both
@@ -678,6 +726,18 @@ recreational and domestic use is vital for preventing waterborne
 diseases and maintaining overall public health. Continuous efforts in
 monitoring, treatment, and management of water sources are essential to
 achieve this goal.
+
+Therefore, the data supports the hypothesis that water sites exposed to
+urban influences, such as recreational water, domestic water supply, and
+drinking water, mainly have safe bacteria/pathogen concentration levels.
+However, there are some samples with high median unsafe results
+compared. y, and drinking water), which is more exposed to urban
+influences, contains some high median unsafe results. For instance,
+streams, which are often impacted by urban runoff and other sources of
+contamination, have a high unsafe median result of 6820 CFU/100 mL for
+domestic water supply. This indicates that streams in urban areas are
+particularly vulnerable to contamination and may require more rigorous
+monitoring and treatment to ensure safety.
 
 ------------------------------------------------------------------------
 
