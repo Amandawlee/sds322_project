@@ -1,12 +1,15 @@
 ---
 title: "EDA Report"
-output: 
+output:
   html_document:
-    toc: true
-    toc_float: true
+    toc: yes
+    toc_float: yes
     toc_depth: 3
-editor_options: 
-  markdown: 
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
+editor_options:
+  markdown:
     wrap: 72
 ---
 
@@ -169,23 +172,28 @@ water_tidy |>
 
 water_tidy |> #Calculate summary statistics (counts) for water sources
   group_by(medium) |>
-  summarize(count = n())
+  summarize(count = n(),
+            percent = 100*n()/nrow(water_tidy))
 ```
 
 From Figure 1 and the summary statistics, the three largest sources are
-1704 storm water sources, 9161 ground water sources, and 22531 surface
-water sources. Moving forward, storm water sources will not be included
-for analysis since they have wildly different bacteria concentrations
-and cannot be controlled by community intervention. Next, we'll look at
-the distribution of bacteria concentration across all sources. This will
-include the following bacteria: total coliform bacteria, fecal
-streptococci, fecal coliform bacteria, E coli bacteria, and
-enterococcus. Total coliform bacteria is filtered out since it only
-accounts for a single row and happened only one time. The EPA recommends
-that for a domestic water supply that is to be treated, concentrations
-for the previously mentioned bacteria should be less than 2000 colonies
-per 100 milliliters. Therefore, the visualization only looks at bacteria
-concentrations in excess of 2000 colonies/100 mL.
+1,704 storm water sources, 9,161 ground water sources (\~28% of all
+water sources), and 22,531 surface water sources (\~69% of all water
+sources). Moving forward, storm water sources will not be included for
+analysis since they have wildly different bacteria concentrations and
+treatment of storm water varies significantly from other sources
+(<https://torrentlab.com/what-is-the-purpose-of-stormwater-testing-and-when-is-it-required/>).
+
+Next, we'll look at the distribution of bacteria concentration across
+*all* water sources. This will include the following bacteria: total
+coliform bacteria, fecal streptococci, fecal coliform bacteria, E coli
+bacteria, and enterococcus. Total coliform bacteria is filtered out
+since it only accounts for a single row and has one recorded instance in
+2012. The EPA recommends that for a domestic water supply that is to be
+treated, concentrations for the previously mentioned bacteria should be
+less than 2000 colonies per 100 milliliters. Therefore, the
+visualization only looks at bacteria concentrations in excess of 2000
+colonies/100 mL.
 
 ```{r}
 water_tidy |>
@@ -212,13 +220,14 @@ water_tidy |> #All units are colonies/100 mL
 ```
 
 Figure 2 and the summary statistics show us large variations in the
-dangerous concentrations of bacteria in water sources in Austin. Mean
-concentrations of fecal streptococci are above the safe limit at 6072.42
-colonies/100 mL with total coliform bacteria concentrations following
-close behind at 1299.784 colonies/100 mL. However, the standard
-deviation for each bacteria concentration is on the order of thousands
-and tens of thousands, implying that there are still many locations of
-dangerously high bacteria concentration.
+dangerous concentrations of bacteria in water sources in Austin. Median
+concentrations of enterococcus are above the safe limit at 15,100
+colonies/100 mL. Mean concentrations of total coliform bacteria and
+fecal streptococci tell a similar story at 1,299.784 colonies/100 mL and
+6,072.419 colonies/100 mL. However, the standard deviation for each
+bacteria concentration is on the order of thousands and tens of
+thousands, implying that there are still many locations of dangerously
+high bacteria concentration.
 
 Finally, we can look at the changing concentrations of bacteria over
 time in both surface and ground water sources.
@@ -240,22 +249,28 @@ water_tidy |>
 water_tidy |> #Surface water averages
   filter(medium == 'Surface Water') |>
   group_by(year) |>
-  summarize(mean_concentration = mean(result))
+  summarize(mean_concentration = mean(result),
+            median_concentration = median(result),
+            sd_concentration = sd(result),
+            IQR_concentration = IQR(result))
 
 water_tidy |> #Mean concentrations in colonies/100 mL, ground water averages
   filter(medium == 'Ground Water') |>
   group_by(year) |>
-  summarize(mean_concentration = mean(result))
+  summarize(mean_concentration = mean(result),
+            median_concentration = median(result),
+            sd_concentration = sd(result),
+            IQR_concentration = IQR(result))
 ```
 
 Surface water concentrations are much more frequently reported than
 groundwater concentrations. Groundwater concentrations have stayed
-approximately the same since 1990. Surface water concentrations were
-extremely high in the 20th century (an average of 23713.57 colonies/100
-mL in 1994) and have consistently improved in the 21st century (an
-average of 212.04 colonies/100 mL in 2010). However, there appears to be
-a slight uptick in concentration in recent years as shown by the right
-tail in Figure 3 of surface water concentrations.
+approximately the same since the 20th century. Surface water
+concentrations were extremely high in the 20th century (an average of
+23,713.57 colonies/100 mL in 1994) and have consistently improved in the
+21st century (an average of 212.04 colonies/100 mL in 2010). However,
+there appears to be a slight uptick in concentration in recent years as
+shown by the right tail in Figure 3 of surface water concentrations.
 
 ## Time of Day Bacteria/Pathogen Samples Are Taken
 
@@ -279,12 +294,13 @@ water_tidy |>
 
 water_tidy |> #Count number of samples collected per year
   group_by(year) |>
-  summarize(count = n())
+  summarize(count = n(),
+            percent = 100*n()/nrow(water_tidy))
 ```
 
 We see an approximately unimodal distribution where more samples were
 taken in the 90's and decreased in the 2000's. The most samples were
-taken in 2009 at 1857 samples. The least samples were taken in 1987 at
+taken in 2009 at 1,857 samples. The least samples were taken in 1987 at
 10 samples.
 
 Next, we look at the distribution of samples taken per bacteria type. We
@@ -310,7 +326,7 @@ water_tidy |>
             percent = 100*n()/nrow(water_tidy))
 ```
 
-The bacteria that was found the most is E coli in 14852 samples while
+The bacteria that was found the most is E coli, in 14,852 samples, while
 the least is enterococcus in only 167 samples. Next, we can find the
 hour at which the samples were taken for each type of bacteria.
 
@@ -328,16 +344,17 @@ water_tidy |>
     caption = 'Figure 6: Distribution of samples per day across bacteria type'
   )
 
-water_tidy |> #Find number of samples taken per hour
+water_tidy |> #Find number of samples taken per hour and percent
   group_by(hour(date)) |>
-  summarize(count = n())
+  summarize(count = n(),
+            percent = 100*n()/nrow(water_tidy))
 ```
 
 For fecal streptococci, fecal coliform bacteria, and E coli, midnight is
-the most frequent time for sample collection (15988 samples). However,
+the most frequent time for sample collection (15,988 samples). However,
 this is likely the default time entered for when the exact collection
 time is unknown. After the midnight peak, the next most frequent time is
-around 11 AM and noon (3165 samples).
+around 11 AM and noon (3,165 samples).
 
 ## Bacteria/Pathogen Concentrations by Location
 
@@ -835,25 +852,11 @@ initiatives that enhance the well-being of our community.
 
 -   <https://www.knowyourh2o.com/outdoor-4/fecal-coliform-bacteria-in-water>
 
+-   <https://torrentlab.com/what-is-the-purpose-of-stormwater-testing-and-when-is-it-required/>
+
 ### Image:
 
 -   <https://data.austintexas.gov/Environment/Water-Quality-Sampling-Data/5tye-7ray/about_data>
-
--   Reflect on the process of conducting this project.
-
--   What aspect of this part of the project was the most challenging?
-
--   What have you learned from the process itself?
-
--   Include acknowledgements for any help received: who helped you with
-    the project? Thank TAs, instructors, data owners, external
-    resources... If a team project, use this section to report the
-    contribution of each member: who did contribute to which part of the
-    report).
-
--   Include references: again, add the link(s) of the dataset(s), the
-    link for the citation of a study/article for the background context,
-    the link to a picture (if available), and any external resources.
 
 ------------------------------------------------------------------------
 
