@@ -1,5 +1,5 @@
 ---
-title: "Project Check In 2"
+title: "Project Check In 3"
 output: 
   html_document:
     toc: true
@@ -40,14 +40,18 @@ dim(water)
 
 # Variables and Model
 
--   **Model 1 (Amanda)**:
+-   **Model 1 (Amanda)**: Predict if a bacteria/pathogen concentration sample is considered safe or unsafe.
 
-    -   **Outcome Variable and Type**:
+    -   **Model Type**: Decision Tree
+    
+    -   **Outcome Variable and Type**: `safeness` (Categorical)
 
-    -   **Predictors and Types**:
+    -   **Predictors and Types**: `site_type` (Categorical), `parameter` (Categorical), `result` (Numerical)
 
 -   **Model 2 (Nabil)**: Predict bacteria concentrations using time of day, type of water source, and site type.
 
+    -   **Model Type**: Linear Regression
+    
     -   **Outcome Variable and Type**: `Result`, Numeric
 
     -   **Predictors and Types**: `sample_date` (Numeric), `Medium` (Categorical), and `site_type` (Categorical).
