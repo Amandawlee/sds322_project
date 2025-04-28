@@ -92,6 +92,9 @@ knitr::opts_chunk$set(echo = TRUE, eval = TRUE,
                       R.options = list(max.print=100))
 
 library(tidyverse)
+library(rpart)
+library(rpart.plot)
+library(plotROC)
 ```
 
 ```{r}
@@ -692,6 +695,69 @@ water_tidy |>
 All drinking water sites have unsafe E. coli concentrations (greater
 than 0 CFU/100 mL or 0 MPN/100ML). Therefore, it would be hazardous to
 drink from these direct sources of water.
+
+------------------------------------------------------------------------
+
+# Modelling (Nabil)
+
+```{r}
+#only looking at ground vs. surface water
+#Also only filter down to site types that represent a large portion of the data, remove any single row observations
+water_tidy <- water_tidy |>
+  filter(medium == 'Ground Water' | medium == 'Surface Water' & medium != 'Storm Water') |>
+  filter(site_type == 'Well' | site_type == 'Urban runoff' | site_type == 'Stream' | site_type == 'Spring' | site_type == 'Lake' & site_type != 'BMP - Wet Pond')
+## Decision Tree Model
+
+#Make decision tree with result as outcome and sample_date, medium, and site_type as predictors
+tree_reg <- rpart(result ~ date + medium + site_type,
+                    data = water_tidy)
+
+#Visualize decision tree
+rpart.plot(tree_reg)
+
+#Calculate RMSE
+sqrt(mean((water_tidy$result - predict(tree_reg, water_tidy))^2))
+
+# Initialize a vector to keep track of the performance for each k-fold
+perf_k <- NULL
+
+## 5-fold Cross-Validation
+
+# Choose number of folds
+k = 5 
+
+# To have the same random sample, use set.seed
+set.seed(322)
+
+# Randomly order rows in the dataset
+shuffled_data <- water_tidy[sample(nrow(water_tidy)), ] 
+
+# Create k folds in the dataset
+shuffled_data <- water_tidy |>
+  mutate(folds = cut(seq(1:nrow(shuffled_data)), breaks = k, labels = FALSE))
+
+# Use a for-loop to get performance for each k-fold
+for(i in 1:k){
+  # Split data into train and test data
+  train_i <- shuffled_data |> filter(folds != i) # train data = all observations except in fold i
+  test_i <- shuffled_data |> filter(folds == i)  # test data = observations in fold i
+  
+  # Train model on train data (all but fold i)
+  train_model <- rpart(result ~ date + medium + site_type,
+                    data = train_i)
+  
+  # Performance listed for each test data = fold i
+  # Save the RMSE values
+  perf_k[i] <- sqrt(mean((water_tidy$result - predict(train_model, test_i))^2))
+}
+
+# Performance for each fold 
+perf_k
+
+# Average performance over all k folds
+mean(perf_k)
+sd(perf_k)
+```
 
 ------------------------------------------------------------------------
 
