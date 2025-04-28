@@ -564,13 +564,13 @@ management and treatment of water sources are essential to maintain the
 quality and availability of this vital resource.
 
 For domestic water supply, we will look at site types lakes, springs,
-streams, drinking water tap, and wells. The EPA's current standard in
+streams, and wells. The EPA's current standard in
 domestic water supply is **fewer than 2000 colonies/100 mL**.
 
 ```{r}
 # Frequency of domestic water supply site types
 water_tidy |>
-  filter(site_type %in% c('Lake', 'Spring', 'Stream', 'Well', 'Drinking Water Tap')) |>
+  filter(site_type %in% c('Lake', 'Spring', 'Stream', 'Well')) |>
   group_by(site_type) |>
   summarize(sample_count = n())
 ```
@@ -698,7 +698,7 @@ drink from these direct sources of water.
 
 ------------------------------------------------------------------------
 
-# Modelling (Nabil)
+# Modeling (Nabil)
 
 ```{r}
 #only looking at ground vs. surface water
@@ -759,6 +759,162 @@ mean(perf_k)
 sd(perf_k)
 ```
 
+# Modeling (Amanda)
+
+```{r}
+# Focus on recreational waters
+rec_water_tidy <- water_tidy |>
+  filter(site_type %in% c('Lake', 'Spring', 'Stream')) |>
+  filter(parameter %in% c("E COLI BACTERIA", "ENTEROCOCCUS", "FECAL COLIFORM BACTERIA")) |>
+  mutate(safeness = case_when(
+    parameter == "E COLI BACTERIA" & result <= 126 ~ 1,
+    parameter == "E COLI BACTERIA" & result > 126 ~ 0,
+    parameter == "ENTEROCOCCUS" & result <= 35 ~ 1,
+    parameter == "ENTEROCOCCUS" & result > 35 ~ 0,
+    parameter == "FECAL COLIFORM BACTERIA" & result <= 200 ~ 1,
+    parameter == "FECAL COLIFORM BACTERIA" & result > 200 ~ 0))
+
+# Decision tree model for recreational waters
+fit_tree_rec <- rpart(safeness ~ result + site_type + parameter,
+                    data = rec_water_tidy,
+                    method = 'class')
+
+# ROC curve
+ROC <- ggplot(rec_water_tidy) + 
+    geom_roc(aes(
+      # Outcome is safeness
+      d = safeness,
+      # Probability of safeness based on the decision tree model
+      m = predict(fit_tree_rec, rec_water_tidy)[ ,2]))
+ROC
+
+# Visualize the decision tree
+rpart.plot(fit_tree_rec)
+
+# Calculate the area under the curve
+calc_auc(ROC)$AUC
+
+# Choose number of folds
+k = 5 
+
+# To have the same random sample, use set.seed
+set.seed(322)
+
+# Randomly order rows in the dataset
+shuffled_data <- rec_water_tidy[sample(nrow(rec_water_tidy)), ] 
+
+# Create k folds in the dataset
+shuffled_data <- rec_water_tidy |>
+  mutate(folds = cut(seq(1:nrow(shuffled_data)), breaks = k, labels = FALSE))
+
+# Initialize a vector to keep track of the performance for each k-fold
+perf_k <- NULL
+
+# Use a for-loop to get performance for each k-fold
+for(i in 1:k){
+  # Split data into train and test data
+  train_i <- shuffled_data |> filter(folds != i) # train data = all observations except in fold i
+  test_i <- shuffled_data |> filter(folds == i)  # test data = observations in fold i
+  
+  # Train model on train data (all but fold i)
+  # CHANGE: what model/predictors should be included
+  train_model <- rpart(safeness ~ result + site_type + parameter,
+                    data = train_i,
+                    method = 'class')
+  
+  # Performance listed for each test data = fold i
+  # CHANGE: how the performance is calculated
+  ROC <- ggplot(test_i) + 
+    geom_roc(aes(
+      # Outcome is safeness
+      d = safeness,
+      # Probability of safeness based on the decision tree model
+      m = predict(train_model, test_i)[ ,2]))
+  # Save the AUC values
+  perf_k[i] <- calc_auc(ROC)$AUC
+}
+
+# Performance for each fold 
+perf_k
+
+# Average performance over all k folds
+mean(perf_k)
+sd(perf_k)
+```
+
+```{r}
+# Focus on domestic water supply
+domestic_water_tidy <- water_tidy |>
+  filter(site_type %in% c('Lake', 'Spring', 'Stream', 'Well')) |>
+  filter(parameter == "FECAL COLIFORM BACTERIA") |>
+  mutate(safeness = ifelse(result < 2000, 1, 0))
+
+# Decision tree model for domestic water supply
+fit_tree_domestic <- rpart(safeness ~ result + site_type + parameter,
+                    data = domestic_water_tidy,
+                    method = 'class')
+
+# ROC curve
+ROC <- ggplot(domestic_water_tidy) + 
+    geom_roc(aes(
+      # Outcome is safeness
+      d = safeness,
+      # Probability of safeness based on the decision tree model
+      m = predict(fit_tree_domestic, domestic_water_tidy)[ ,2]))
+ROC
+
+# Visualize the decision tree
+rpart.plot(fit_tree_domestic)
+
+# Calculate the area under the curve
+calc_auc(ROC)$AUC
+# Choose number of folds
+k = 5 
+
+# To have the same random sample, use set.seed
+set.seed(322)
+
+# Randomly order rows in the dataset
+shuffled_data <- domestic_water_tidy[sample(nrow(domestic_water_tidy)), ] 
+
+# Create k folds in the dataset
+shuffled_data <- domestic_water_tidy |>
+  mutate(folds = cut(seq(1:nrow(shuffled_data)), breaks = k, labels = FALSE))
+
+# Initialize a vector to keep track of the performance for each k-fold
+perf_k <- NULL
+
+# Use a for-loop to get performance for each k-fold
+for(i in 1:k){
+  # Split data into train and test data
+  train_i <- shuffled_data |> filter(folds != i) # train data = all observations except in fold i
+  test_i <- shuffled_data |> filter(folds == i)  # test data = observations in fold i
+  
+  # Train model on train data (all but fold i)
+  # CHANGE: what model/predictors should be included
+  train_model <- rpart(safeness ~ result + site_type + parameter,
+                    data = train_i,
+                    method = 'class')
+  
+  # Performance listed for each test data = fold i
+  # CHANGE: how the performance is calculated
+  ROC <- ggplot(test_i) + 
+    geom_roc(aes(
+      # Outcome is safeness
+      d = safeness,
+      # Probability of safeness based on the decision tree model
+      m = predict(train_model, test_i)[ ,2]))
+  # Save the AUC values
+  perf_k[i] <- calc_auc(ROC)$AUC
+}
+
+# Performance for each fold 
+perf_k
+
+# Average performance over all k folds
+mean(perf_k)
+sd(perf_k)
+```
 ------------------------------------------------------------------------
 
 # Discussion
